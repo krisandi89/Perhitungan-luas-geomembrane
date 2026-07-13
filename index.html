@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geomembrane Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a1128;
+            --bg-gradient: linear-gradient(135deg, #0a1128 0%, #12224a 50%, #003b5c 100%);
+            --surface: rgba(18, 34, 74, 0.4);
+            --surface-hover: rgba(26, 48, 102, 0.6);
+            --primary: #00e0ff;
+            --primary-glow: rgba(0, 224, 255, 0.5);
+            --text-main: #f0f6fc;
+            --text-muted: #8b9bb4;
+            --border: rgba(0, 224, 255, 0.2);
+            --input-bg: rgba(4, 13, 33, 0.6);
+            --success: #00ff9d;
+            --glass-blur: 12px;
+            
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-dark);
+            background-image: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        
+        .glass-panel {
+            background: var(--surface);
+            backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .glass-header {
+            background: rgba(10, 17, 40, 0.8);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        h1, h2, h3, h4 { color: var(--text-main); font-weight: 600; margin-bottom: 1rem; }
+        .text-gradient { background: linear-gradient(90deg, #ffffff, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 2rem;
+        }
+        
+        @media (max-width: 1100px) {
+            .main-layout { grid-template-columns: 1fr; }
+        }
+
+        .grid { display: grid; gap: 1.5rem; }
+        .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+        .grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+        
+        @media (max-width: 600px) {
+            .grid-cols-2, .grid-cols-3 { grid-template-columns: 1fr; }
+        }
+
+        .form-group { margin-bottom: 1.2rem; }
+        .form-label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-muted); font-weight: 500; }
+        .form-input {
+            width: 100%; padding: 0.75rem 1rem; background: var(--input-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: var(--radius-sm);
+            color: var(--text-main); font-family: inherit; font-size: 1rem;
+        }
+        .form-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-glow); }
+
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+            padding: 0.75rem 1.5rem; border-radius: var(--radius-sm); font-weight: 600;
+            cursor: pointer; font-family: inherit; font-size: 1rem; border: none; transition: 0.2s;
+        }
+        .btn-primary { background: var(--primary); color: #001a2c; }
+        .btn-primary:hover { background: #33e6ff; transform: translateY(-2px); box-shadow: 0 4px 15px var(--primary-glow); }
+        .btn-outline { background: transparent; color: var(--text-main); border: 1px solid var(--border); }
+        .btn-outline:hover { background: rgba(255,255,255,0.1); }
+
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th { text-align: left; padding: 0.8rem; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+        .data-table td { padding: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(var(--glass-blur));
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: #0b142d;
+            border: 1px solid var(--border);
+            padding: 2.5rem;
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 480px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0, 224, 255, 0.25);
+        }
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+        .close-btn:hover { color: #fff; }
+        
+        .btn-gray {
+            background: #e2e8f0;
+            color: #1a202c;
+            width: 100%;
+            padding: 0.9rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 0.5rem;
+        }
+        .btn-gray:hover { background: #cbd5e1; }
+        
+        .btn-pink {
+            background: #e51a75;
+            color: #fff;
+            width: 100%;
+            padding: 0.9rem;
+            border-radius: var(--radius-sm);
+            box-shadow: 0 4px 15px rgba(229, 26, 117, 0.3);
+        }
+        .btn-pink:hover { background: #ff2d8d; }
+
+        .project-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            text-align: left;
+        }
+        .project-item:hover { background: rgba(0,224,255,0.05); }
+
+        /* Print styles */
+        .print-report-layout { display: none; }
+        
+        @media print {
+            body { background: white !important; color: black !important; }
+            .container, .glass-header, .modal, .no-print { display: none !important; }
+            .print-report-layout { display: block !important; }
+            @page { size: A4 portrait; margin: 8mm; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Screen UI -->
+    <div class="glass-header no-print">
+        <div>
+            <h1 class="text-gradient">Geomembrane Calculator</h1>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Advanced Web Application for Reservoir Linings</p>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+            <button class="btn btn-outline" onclick="openModal()">📂 Cari Proyek Tersimpan</button>
+            <button class="btn btn-outline" onclick="window.print()">Print Report</button>
+            <button class="btn btn-primary" onclick="saveProject()" id="btnSave">Simpan Project</button>
+        </div>
+    </div>
+
+    <!-- Main Container Screen UI -->
+    <div class="container">
+        <div class="main-layout">
+            
+            <!-- Left Side: Diagram and Overall Totals -->
+            <div class="left-column">
+
+                <!-- Schematic Section -->
+                <div class="glass-panel" style="text-align: center; overflow: auto; background: white; min-height: 480px; display: flex; flex-direction: column; justify-content: center;">
+                    <h3 style="text-align: left; color: #333; margin-bottom: 0.5rem;">DENAH KOLAM (TAMPAK ATAS)</h3>
+                    <svg id="schematic" viewBox="0 0 600 700" style="max-width: 100%; height: auto; display: inline-block;">
+                        <defs>
+                            <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#000" />
+                            </marker>
+                        </defs>
+
+                        <!-- Regions (Original Excel color scheme) -->
+                        <rect id="rectG" fill="#d4ebd0" stroke="#333" stroke-width="1.5" />
+                        <rect id="rectF" fill="#fae787" stroke="#333" stroke-width="1.5" />
+                        <polygon id="polyB" fill="#f2a272" stroke="#333" stroke-width="1.5" />
+                        <polygon id="polyD" fill="#f2a272" stroke="#333" stroke-width="1.5" />
+                        <polygon id="polyC" fill="#f2a272" stroke="#333" stroke-width="1.5" />
+                        <polygon id="polyE" fill="#f2a272" stroke="#333" stroke-width="1.5" />
+                        <rect id="rectA" fill="#fbb4f0" stroke="#333" stroke-width="1.5" />
+
+                        <!-- Text Labels inside regions -->
+                        <text id="textA" font-family="Arial" font-size="18" text-anchor="middle" dominant-baseline="middle" fill="#000">A</text>
+                        <text id="textB" font-family="Arial" font-size="18" text-anchor="middle" dominant-baseline="middle" fill="#000">B</text>
+                        <text id="textD" font-family="Arial" font-size="18" text-anchor="middle" dominant-baseline="middle" fill="#000">D</text>
+                        <text id="textC" font-family="Arial" font-size="18" text-anchor="middle" dominant-baseline="middle" fill="#000">C</text>
+                        <text id="textE" font-family="Arial" font-size="18" text-anchor="middle" dominant-baseline="middle" fill="#000">E</text>
+                        <text id="textF" font-family="Arial" font-size="16" text-anchor="middle" dominant-baseline="middle" fill="#000">F</text>
+                        <text id="textG" font-family="Arial" font-size="16" text-anchor="middle" dominant-baseline="middle" fill="#000">G</text>
+
+                        <!-- Extension lines Horizontal -->
+                        <line id="extH1" stroke="#333" stroke-width="1" stroke-dasharray="4" />
+                        <line id="extH2" stroke="#333" stroke-width="1" stroke-dasharray="4" />
+                        <line id="extH3" stroke="#333" stroke-width="1" stroke-dasharray="4" />
+                        <line id="extH4" stroke="#333" stroke-width="1" stroke-dasharray="4" />
+                        
+                        <!-- Horizontal Dimensions -->
+                        <line id="dimH1" stroke="#000" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)" />
+                        <text id="svgDimWidthA" font-family="Arial" font-size="14" text-anchor="middle" fill="#0000ee">8.00 m</text>
+                        
+                        <line id="dimH2" stroke="#000" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)" />
+                        <text id="svgDimWidthTop" font-family="Arial" font-size="14" text-anchor="middle" fill="#000">10.04 m</text>
+
+                        <!-- Extension lines Vertical -->
+                        <line id="extV1" stroke="#333" stroke-width="1" stroke-dasharray="4" />
+                        <line id="extV2" stroke="#333" stroke-width="1" stroke-dasharray="4" />
+                        <line id="extV3" stroke="#333" stroke-width="1" stroke-dasharray="4" />
+                        <line id="extV4" stroke="#333" stroke-width="1" stroke-dasharray="4" />
+                        <line id="extV5" stroke="#333" stroke-width="1" stroke-dasharray="4" />
+                        <line id="extV6" stroke="#333" stroke-width="1" stroke-dasharray="4" />
+                        <line id="extV7" stroke="#333" stroke-width="1" stroke-dasharray="4" />
+                        <line id="extV8" stroke="#333" stroke-width="1" stroke-dasharray="4" />
+
+                        <!-- Vertical Dimensions -->
+                        <line id="dimV1" stroke="#000" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)" />
+                        <text id="svgDimLengthA" font-family="Arial" font-size="14" text-anchor="middle" fill="#0000ee">9.00 m</text>
+
+                        <line id="dimV2" stroke="#000" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)" />
+                        <text id="svgDimLengthTop" font-family="Arial" font-size="14" text-anchor="middle" fill="#000">11.04 m</text>
+
+                        <line id="dimV3" stroke="#000" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)" />
+                        <text id="svgDimLengthBerm" font-family="Arial" font-size="14" text-anchor="middle" fill="#000">15.04 m</text>
+
+                        <line id="dimV4" stroke="#000" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)" />
+                        <text id="svgDimLengthTotal" font-family="Arial" font-size="14" text-anchor="middle" fill="#000">16.04 m</text>
+                    </svg>
+                </div>
+
+                <!-- Totals Box -->
+                <div class="glass-panel" style="padding: 1.5rem; background: rgba(0, 224, 255, 0.05); border: 1px solid var(--border);">
+                    <div class="grid grid-cols-3" style="text-align: center;">
+                        <div>
+                            <p style="color: var(--text-muted); font-size: 0.85rem;">Total Luas (1 Kolam)</p>
+                            <h2 style="color: var(--primary); font-size: 2rem;"><span id="resTotalArea">0.00</span> <span style="font-size: 0.9rem; color: var(--text-main)">m²</span></h2>
+                        </div>
+                        <div style="border-left: 1px solid rgba(255,255,255,0.1); border-right: 1px solid rgba(255,255,255,0.1);">
+                            <p style="color: var(--text-muted); font-size: 0.85rem;">Total + Waste</p>
+                            <h2 style="color: var(--primary); font-size: 2rem;"><span id="resTotalAreaWaste">0.00</span> <span style="font-size: 0.9rem; color: var(--text-main)">m²</span></h2>
+                        </div>
+                        <div>
+                            <p style="color: var(--text-muted); font-size: 0.85rem;">Kuantitas Total</p>
+                            <h2 style="color: var(--success); font-size: 2rem;"><span id="resTotalQuantity">0.00</span> <span style="font-size: 0.9rem; color: var(--text-main)">m²</span></h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Side: Inputs & Project Details -->
+            <div class="right-column">
+                <!-- Project Details -->
+                <div class="glass-panel" style="padding: 1.5rem;">
+                    <h3 style="margin-bottom: 1rem;">📦 Detail Proyek</h3>
+                    <div class="grid grid-cols-2">
+                        <div class="form-group">
+                            <label class="form-label">Nama Proyek</label>
+                            <input type="text" id="projectName" class="form-input" value="Kolam Penampungan Air">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Lokasi</label>
+                            <input type="text" id="location" class="form-input" value="Tanjung Enim - Sumatera Selatan">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Client</label>
+                            <input type="text" id="client" class="form-input" value="Bapak Ferdy Manda">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Marketing</label>
+                            <input type="text" id="marketing" class="form-input" value="Sandi">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Designer</label>
+                            <input type="text" id="designer" class="form-input" value="">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tanggal</label>
+                            <input type="date" id="date" class="form-input">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dimension Input -->
+                <div class="glass-panel" style="padding: 1.5rem;">
+                    <h3 style="margin-bottom: 1rem;">📐 Input Dimensi</h3>
+                    <div class="grid grid-cols-2">
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label class="form-label">Mode Input Dimensi</label>
+                            <select id="dimMode" class="form-input" onchange="toggleDimMode(); calculate()">
+                                <option value="bottom">Panjang & Lebar Dasar (Bawah)</option>
+                                <option value="top">Panjang & Lebar Atas Kolam</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" id="labelLength">Panjang Dasar (m)</label>
+                            <input type="number" id="length" class="form-input" value="8" oninput="calculate()">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" id="labelWidth">Lebar Dasar (m)</label>
+                            <input type="number" id="width" class="form-input" value="9" oninput="calculate()">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Kedalaman (m)</label>
+                            <input type="number" id="depth" class="form-input" value="2" oninput="calculate()">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tipe Lereng</label>
+                            <select id="slopeType" class="form-input" onchange="toggleSlopeInput(); calculate()">
+                                <option value="1">Derajat (α)</option>
+                                <option value="2">Perbandingan (V:H)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" id="groupSlope1" style="grid-column: span 2;">
+                            <label class="form-label" id="labelSlope1">Kemiringan (Derajat)</label>
+                            <input type="number" id="slopeValue1" class="form-input" value="63" oninput="calculate()">
+                        </div>
+                        <div class="form-group" id="groupSlope2" style="display: none;">
+                            <label class="form-label">Horizontal (H)</label>
+                            <input type="number" id="slopeValue2" class="form-input" value="2" oninput="calculate()">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Lebar Berm (m)</label>
+                            <input type="number" id="bermWidth" class="form-input" value="2" oninput="calculate()">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Kedalaman Anchor (m)</label>
+                            <input type="number" id="trenchDepth" class="form-input" value="0.5" oninput="calculate()">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Lebar Anchor (m)</label>
+                            <input type="number" id="trenchWidth" class="form-input" value="0.5" oninput="calculate()">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Waste (%)</label>
+                            <input type="number" id="waste" class="form-input" value="10" oninput="calculate()">
+                        </div>
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label class="form-label">Jumlah Kolam</label>
+                            <input type="number" id="totalPonds" class="form-input" value="2" oninput="calculate()">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Calculations Breakdown -->
+                <div class="glass-panel" style="padding: 1.5rem;">
+                    <h3 style="margin-bottom: 1rem;">📋 Rincian Hasil</h3>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr><th>Bidang</th><th>Luas</th><th>Satuan</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Dasar (A)</td><td id="resAreaA">0.00</td><td>m²</td></tr>
+                                <tr><td>Dinding Panjang (B & D)</td><td id="resAreaBD">0.00</td><td>m²</td></tr>
+                                <tr><td>Dinding Lebar (C & E)</td><td id="resAreaCE">0.00</td><td>m²</td></tr>
+                                <tr><td>Berm (F)</td><td id="resAreaF">0.00</td><td>m²</td></tr>
+                                <tr><td>Anchor Trench (G + H)</td><td id="resAreaGH">0.00</td><td>m²</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 1-Page Printable Report Layout (Optimized for larger graphics) -->
+    <div class="print-report-layout" style="background: white; color: black; font-family: 'Arial', sans-serif; padding: 15px; font-size: 11px; line-height: 1.3;">
+        <!-- Company Header Block -->
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #111; padding-bottom: 5px; margin-bottom: 8px;">
+            <img src="LOGO%20MULTIBANGUN%20(Primary).png" alt="Logo Multibangun" style="height: 45px; width: auto; object-fit: contain;">
+            <div style="text-align: right;">
+                <h2 style="margin: 0; font-size: 14px; color: #111; font-weight: bold;">LAPORAN PERHITUNGAN VOLUME GEOMEMBRANE</h2>
+                <p style="margin: 1px 0 0 0; font-size: 8.5px; color: #555; font-weight: bold;">PT. MULTIBANGUN REKAPRIMA KARYA</p>
+            </div>
+        </div>
+
+        <!-- Project Info & Dimensions Grid -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 8px;">
+            <!-- Left Info Table -->
+            <div>
+                <h4 style="margin: 0 0 3px 0; border-bottom: 1px solid #999; padding-bottom: 1px; font-size: 9.5px; font-weight: bold; color: #111;">DETAIL PROYEK</h4>
+                <table style="width: 100%; border-collapse: collapse; font-size: 9px;">
+                    <tr><td style="padding: 2px 0; width: 35%; font-weight: bold;">Proyek</td><td style="padding: 2px 0;">: <span id="printProjName"></span></td></tr>
+                    <tr><td style="padding: 2px 0; font-weight: bold;">Lokasi</td><td style="padding: 2px 0;">: <span id="printProjLocation"></span></td></tr>
+                    <tr><td style="padding: 2px 0; font-weight: bold;">Client</td><td style="padding: 2px 0;">: <span id="printProjClient"></span></td></tr>
+                    <tr><td style="padding: 2px 0; font-weight: bold;">Marketing</td><td style="padding: 2px 0;">: <span id="printProjMarketing"></span></td></tr>
+                    <tr><td style="padding: 2px 0; font-weight: bold;">Designer</td><td style="padding: 2px 0;">: <span id="printProjDesigner"></span></td></tr>
+                    <tr><td style="padding: 2px 0; font-weight: bold;">Tanggal</td><td style="padding: 2px 0;">: <span id="printProjDate"></span></td></tr>
+                    <tr><td style="padding: 2px 0; font-weight: bold;">No. Rev</td><td style="padding: 2px 0;">: <span id="printProjRev"></span></td></tr>
+                </table>
+            </div>
+            <!-- Right Input Dimensions Table -->
+            <div>
+                <h4 style="margin: 0 0 3px 0; border-bottom: 1px solid #999; padding-bottom: 1px; font-size: 9.5px; font-weight: bold; color: #111;">DIMENSI INPUT</h4>
+                <table style="width: 100%; border-collapse: collapse; font-size: 9px;">
+                    <tr><td style="padding: 1.5px 0; width: 60%; font-weight: bold;">Panjang Dasar (m)</td><td style="padding: 1.5px 0;">: <span id="printDimLength"></span> m</td></tr>
+                    <tr><td style="padding: 1.5px 0; font-weight: bold;">Lebar Dasar (m)</td><td style="padding: 1.5px 0;">: <span id="printDimWidth"></span> m</td></tr>
+                    <tr><td style="padding: 1.5px 0; font-weight: bold;">Kedalaman (m)</td><td style="padding: 1.5px 0;">: <span id="printDimDepth"></span> m</td></tr>
+                    <tr><td style="padding: 1.5px 0; font-weight: bold;">Kemiringan (α)</td><td style="padding: 1.5px 0;">: <span id="printDimAngle"></span> °</td></tr>
+                    <tr><td style="padding: 1.5px 0; font-weight: bold;">Lebar Berm (m)</td><td style="padding: 1.5px 0;">: <span id="printDimBerm"></span> m</td></tr>
+                    <tr><td style="padding: 1.5px 0; font-weight: bold;">Lebar Anchor Trench (m)</td><td style="padding: 1.5px 0;">: <span id="printDimTrenchW"></span> m</td></tr>
+                    <tr><td style="padding: 1.5px 0; font-weight: bold;">Kedalaman Anchor Trench (m)</td><td style="padding: 1.5px 0;">: <span id="printDimTrenchD"></span> m</td></tr>
+                    <tr><td style="padding: 1.5px 0; font-weight: bold;">Waste (%)</td><td style="padding: 1.5px 0;">: <span id="printDimWaste"></span> %</td></tr>
+                    <tr><td style="padding: 1.5px 0; font-weight: bold;">Jumlah Kolam</td><td style="padding: 1.5px 0;">: <span id="printDimPonds"></span></td></tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Drawings Section: Full width denah kolam -->
+        <div style="border: 1px solid #bbb; padding: 10px 10px 5px 10px; border-radius: 6px; text-align: center; background: white; margin-bottom: 6px;">
+            <h5 style="margin: 0 0 3px 0; font-size: 10px; text-align: left; color: #111; font-weight: bold;">DENAH KOLAM (TAMPAK ATAS)</h5>
+            <svg id="printSchematic" viewBox="0 0 550 660" preserveAspectRatio="xMidYMid meet" style="width: 100%; height: 340px; background: white;"></svg>
+        </div>
+
+        <!-- Potongan + Detail side by side -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px;">
+            <div style="border: 1px solid #bbb; padding: 8px; border-radius: 6px; text-align: center; background: white;">
+                <h5 style="margin: 0 0 4px 0; font-size: 9px; text-align: left; color: #111; font-weight: bold;">POTONGAN 1-1</h5>
+                <img src="potongan_1_1.png" style="max-height: 110px; width: auto; max-width: 100%; object-fit: contain; margin: 0 auto; display: block;">
+            </div>
+            <div style="border: 1px solid #bbb; padding: 8px; border-radius: 6px; text-align: center; background: white;">
+                <h5 style="margin: 0 0 4px 0; font-size: 9px; text-align: left; color: #111; font-weight: bold;">DETAIL A (ANCHOR TRENCH)</h5>
+                <img src="detail_a.png" style="max-height: 110px; width: auto; max-width: 100%; object-fit: contain; margin: 0 auto; display: block;">
+            </div>
+        </div>
+
+        <!-- Calculated Volume Table -->
+        <div>
+            <h4 style="margin: 0 0 3px 0; border-bottom: 1px solid #999; padding-bottom: 1px; font-size: 9.5px; font-weight: bold; color: #111;">HASIL PERHITUNGAN LUASAN</h4>
+            <table style="width: 100%; border-collapse: collapse; font-size: 9px; text-align: left;">
+                <thead>
+                    <tr style="background: #eaeaea; border-bottom: 1px solid #aaa;">
+                        <th style="border: 1px solid #ccc; padding: 3px 6px; font-weight: bold; width: 10%;">Bidang</th>
+                        <th style="border: 1px solid #ccc; padding: 3px 6px; font-weight: bold; width: 65%;">Deskripsi</th>
+                        <th style="border: 1px solid #ccc; padding: 3px 6px; font-weight: bold; text-align: right; width: 25%;">Luas (m²)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td style="border: 1px solid #ccc; padding: 2px 6px; font-weight: bold; text-align: center;">A</td><td style="border: 1px solid #ccc; padding: 2px 6px;">Dasar Kolam</td><td id="printAreaA" style="border: 1px solid #ccc; padding: 2px 6px; text-align: right;">0.00</td></tr>
+                    <tr><td style="border: 1px solid #ccc; padding: 2px 6px; font-weight: bold; text-align: center;">B & D</td><td style="border: 1px solid #ccc; padding: 2px 6px;">Dinding Panjang (2 unit)</td><td id="printAreaBD" style="border: 1px solid #ccc; padding: 2px 6px; text-align: right;">0.00</td></tr>
+                    <tr><td style="border: 1px solid #ccc; padding: 2px 6px; font-weight: bold; text-align: center;">C & E</td><td style="border: 1px solid #ccc; padding: 2px 6px;">Dinding Lebar (2 unit)</td><td id="printAreaCE" style="border: 1px solid #ccc; padding: 2px 6px; text-align: right;">0.00</td></tr>
+                    <tr><td style="border: 1px solid #ccc; padding: 2px 6px; font-weight: bold; text-align: center;">F</td><td style="border: 1px solid #ccc; padding: 2px 6px;">Berm / Tanggul</td><td id="printAreaF" style="border: 1px solid #ccc; padding: 2px 6px; text-align: right;">0.00</td></tr>
+                    <tr><td style="border: 1px solid #ccc; padding: 2px 6px; font-weight: bold; text-align: center;">G + H</td><td style="border: 1px solid #ccc; padding: 2px 6px;">Anchor Trench (Galian Jangkar)</td><td id="printAreaGH" style="border: 1px solid #ccc; padding: 2px 6px; text-align: right;">0.00</td></tr>
+                    <tr style="background: #fcfcfc; font-weight: bold;">
+                        <td colspan="2" style="border: 1px solid #ccc; padding: 3px 6px; text-align: right;">Total Luas Netto (1 Kolam)</td>
+                        <td id="printTotalArea" style="border: 1px solid #ccc; padding: 3px 6px; text-align: right;">0.00</td>
+                    </tr>
+                    <tr style="background: #fcfcfc; font-weight: bold;">
+                        <td colspan="2" style="border: 1px solid #ccc; padding: 3px 6px; text-align: right;">Total Luas + Waste (<span id="printWastePct"></span>%)</td>
+                        <td id="printTotalAreaWaste" style="border: 1px solid #ccc; padding: 3px 6px; text-align: right;">0.00</td>
+                    </tr>
+                    <tr style="background: #e6f7ff; font-weight: bold; font-size: 9.5px;">
+                        <td colspan="2" style="border: 1px solid #ccc; padding: 4px 6px; text-align: right; color: #0050b3;">Kuantitas Total (<span id="printTotalPonds"></span> Kolam)</td>
+                        <td id="printTotalQuantity" style="border: 1px solid #ccc; padding: 4px 6px; text-align: right; color: #0050b3;">0.00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Hidden tracker for loaded project ID -->
+    <input type="hidden" id="projectIdInput">
+
+    <!-- Modal window for loading/creating projects -->
+    <div id="rekapModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            
+            <!-- Step 1: Create or Load -->
+            <div id="modalStep1">
+                <h2 style="margin-bottom: 1.5rem; color: var(--text-main);">Mulai Perhitungan</h2>
+                <button class="btn btn-gray" onclick="buatProyekBaru()">
+                    <span>➕</span> Buat Proyek Baru
+                </button>
+                <div style="margin: 1rem 0; color: var(--text-muted); font-size: 0.9rem;">atau</div>
+                <button class="btn btn-pink" onclick="fetchSavedProjects()">
+                    <span>🔍</span> Cari Proyek Tersimpan
+                </button>
+            </div>
+            
+            <!-- Step 2: Show List of Saved Projects -->
+            <div id="modalStep2" style="display: none;">
+                <h2 style="margin-bottom: 1.5rem; color: var(--text-main);">Proyek Tersimpan</h2>
+                <input type="text" id="projectSearch" class="form-input" placeholder="Cari nama proyek..." oninput="filterProjects()" style="margin-bottom: 1rem;">
+                <div id="projectList" style="max-height: 250px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-sm); background: rgba(0,0,0,0.2);">
+                    <!-- Dynamic project rows -->
+                </div>
+                <button class="btn btn-outline" onclick="showModalStep(1)" style="margin-top: 1.5rem; width: 100%;">Kembali</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('date').valueAsDate = new Date();
+
+        function openModal() {
+            document.getElementById('rekapModal').style.display = 'flex';
+            showModalStep(1);
+        }
+
+        function closeModal() {
+            document.getElementById('rekapModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('rekapModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        function showModalStep(step) {
+            if (step === 1) {
+                document.getElementById('modalStep1').style.display = 'block';
+                document.getElementById('modalStep2').style.display = 'none';
+            } else {
+                document.getElementById('modalStep1').style.display = 'none';
+                document.getElementById('modalStep2').style.display = 'block';
+            }
+        }
+
+        function buatProyekBaru() {
+            document.getElementById('projectName').value = 'Proyek Baru';
+            document.getElementById('location').value = '';
+            document.getElementById('client').value = '';
+            document.getElementById('marketing').value = '';
+            document.getElementById('designer').value = '';
+            document.getElementById('date').valueAsDate = new Date();
+            document.getElementById('projectIdInput').value = '';
+            
+            document.getElementById('length').value = 8;
+            document.getElementById('width').value = 9;
+            document.getElementById('depth').value = 2;
+            document.getElementById('slopeType').value = '1';
+            toggleSlopeInput();
+            document.getElementById('slopeValue1').value = 63;
+            document.getElementById('slopeValue2').value = 2;
+            document.getElementById('bermWidth').value = 2;
+            document.getElementById('trenchDepth').value = 0.5;
+            document.getElementById('trenchWidth').value = 0.5;
+            document.getElementById('waste').value = 10;
+            document.getElementById('totalPonds').value = 2;
+
+            calculate();
+            closeModal();
+        }
+
+        function toggleDimMode() {
+            const mode = document.getElementById('dimMode').value;
+            if (mode === 'top') {
+                document.getElementById('labelLength').innerText = 'Panjang Atas (m)';
+                document.getElementById('labelWidth').innerText = 'Lebar Atas (m)';
+            } else {
+                document.getElementById('labelLength').innerText = 'Panjang Dasar (m)';
+                document.getElementById('labelWidth').innerText = 'Lebar Dasar (m)';
+            }
+        }
+
+        function toggleSlopeInput() {
+            const slopeType = document.getElementById('slopeType').value;
+            if (slopeType === '1') {
+                document.getElementById('labelSlope1').innerText = 'Kemiringan (Derajat)';
+                document.getElementById('groupSlope1').style.gridColumn = 'span 2';
+                document.getElementById('groupSlope2').style.display = 'none';
+            } else {
+                document.getElementById('labelSlope1').innerText = 'Vertikal (V)';
+                document.getElementById('groupSlope1').style.gridColumn = 'span 1';
+                document.getElementById('groupSlope2').style.display = 'block';
+            }
+        }
+
+        function calculate() {
+            const length = parseFloat(document.getElementById('length').value) || 0;
+            const width = parseFloat(document.getElementById('width').value) || 0;
+            const depth = parseFloat(document.getElementById('depth').value) || 0;
+            const slopeType = document.getElementById('slopeType').value;
+            const slopeValue1 = parseFloat(document.getElementById('slopeValue1').value) || 0;
+            const slopeValue2 = parseFloat(document.getElementById('slopeValue2').value) || 0;
+            const bermWidth = parseFloat(document.getElementById('bermWidth').value) || 0;
+            const trenchDepth = parseFloat(document.getElementById('trenchDepth').value) || 0;
+            const trenchWidth = parseFloat(document.getElementById('trenchWidth').value) || 0;
+            const waste = parseFloat(document.getElementById('waste').value) || 0;
+            const totalPonds = parseFloat(document.getElementById('totalPonds').value) || 0;
+
+            let angleDeg = 0;
+            if (slopeType === '1') {
+                angleDeg = slopeValue1;
+            } else if (slopeType === '2') {
+                angleDeg = (Math.atan(slopeValue1 / slopeValue2) * 180) / Math.PI;
+            }
+
+            const angleRad = (angleDeg * Math.PI) / 180;
+
+            const dimMode = document.getElementById('dimMode').value;
+            let baseLength, baseWidth, topLength, topWidth;
+            const slopeRun = depth / Math.tan(angleRad);
+
+            if (dimMode === 'top') {
+                // User inputs top dimensions, derive base
+                topLength = length;
+                topWidth = width;
+                baseLength = length - 2 * slopeRun;
+                baseWidth = width - 2 * slopeRun;
+            } else {
+                // User inputs base (bottom) dimensions, derive top
+                baseLength = length;
+                baseWidth = width;
+                topLength = length + 2 * slopeRun;
+                topWidth = width + 2 * slopeRun;
+            }
+            
+            const widthWithBerm = topWidth + 2 * bermWidth;
+            const widthWithTrench = widthWithBerm + 2 * trenchWidth;
+            
+            const areaA = baseLength * baseWidth;
+            const areaB = 0.5 * (baseLength + topLength) * (depth / Math.sin(angleRad));
+            const areaC = 0.5 * (baseWidth + topWidth) * (depth / Math.sin(angleRad));
+            const areaD = areaB;
+            const areaE = areaC;
+            
+            const areaF = 2 * topLength * bermWidth + 2 * widthWithBerm * bermWidth;
+            const areaG = 2 * (topLength + 2 * bermWidth) * trenchWidth + 2 * widthWithTrench * trenchWidth;
+            const areaH = (2 * widthWithBerm + 2 * (topLength + 2 * bermWidth)) * trenchDepth;
+            
+            const totalArea = areaA + areaB + areaC + areaD + areaE + areaF + areaG + areaH;
+            const totalAreaWithWaste = totalArea * (1 + waste / 100);
+            const totalQuantity = totalAreaWithWaste * totalPonds;
+
+            // --- SVG Diagram Sizing Math ---
+            const centerX = 200;
+            const centerY = 300;
+            
+            const totalW = topWidth + 2 * bermWidth + 2 * trenchWidth;
+            const totalL = topLength + 2 * bermWidth + 2 * trenchWidth;
+
+            const scale = Math.min(240 / totalW, 420 / totalL);
+
+            const wA_half = (baseWidth / 2) * scale;
+            const wTop_half = (topWidth / 2) * scale;
+            const wBerm_half = ((topWidth + 2 * bermWidth) / 2) * scale;
+            const wTrench_half = (totalW / 2) * scale;
+
+            const lA_half = (baseLength / 2) * scale;
+            const lTop_half = (topLength / 2) * scale;
+            const lBerm_half = ((topLength + 2 * bermWidth) / 2) * scale;
+            const lTrench_half = (totalL / 2) * scale;
+
+            // Update Screen SVG attributes
+            updateSvgElements('schematic', centerX, centerY, scale, baseWidth, baseLength, topWidth, topLength, bermWidth, trenchWidth, trenchDepth, wTrench_half, lTrench_half, wBerm_half, lBerm_half, wA_half, lA_half);
+            
+            // Sync print SVG content
+            document.getElementById('printSchematic').innerHTML = document.getElementById('schematic').innerHTML;
+
+            // Update Screen Results text
+            document.getElementById('resAreaA').innerText = isNaN(areaA) ? '0.00' : areaA.toFixed(2);
+            document.getElementById('resAreaBD').innerText = isNaN(areaB*2) ? '0.00' : (areaB*2).toFixed(2);
+            document.getElementById('resAreaCE').innerText = isNaN(areaC*2) ? '0.00' : (areaC*2).toFixed(2);
+            document.getElementById('resAreaF').innerText = isNaN(areaF) ? '0.00' : areaF.toFixed(2);
+            document.getElementById('resAreaGH').innerText = isNaN(areaG+areaH) ? '0.00' : (areaG+areaH).toFixed(2);
+            
+            document.getElementById('resTotalArea').innerText = isNaN(totalArea) ? '0.00' : totalArea.toFixed(2);
+            document.getElementById('resTotalAreaWaste').innerText = isNaN(totalAreaWithWaste) ? '0.00' : totalAreaWithWaste.toFixed(2);
+            document.getElementById('resTotalQuantity').innerText = isNaN(totalQuantity) ? '0.00' : totalQuantity.toFixed(2);
+
+            // Update Printable Report values
+            document.getElementById('printProjName').innerText = document.getElementById('projectName').value;
+            document.getElementById('printProjLocation').innerText = document.getElementById('location').value;
+            document.getElementById('printProjClient').innerText = document.getElementById('client').value;
+            document.getElementById('printProjMarketing').innerText = document.getElementById('marketing').value;
+            document.getElementById('printProjDesigner').innerText = document.getElementById('designer').value || '-';
+            document.getElementById('printProjDate').innerText = formatDate(document.getElementById('date').value);
+            document.getElementById('printProjRev').innerText = '0'; 
+
+            document.getElementById('printDimLength').innerText = baseLength.toFixed(2);
+            document.getElementById('printDimWidth').innerText = baseWidth.toFixed(2);
+            document.getElementById('printDimDepth').innerText = depth.toFixed(2);
+            document.getElementById('printDimAngle').innerText = angleDeg.toFixed(2);
+            document.getElementById('printDimBerm').innerText = bermWidth.toFixed(2);
+            document.getElementById('printDimTrenchW').innerText = trenchWidth.toFixed(2);
+            document.getElementById('printDimTrenchD').innerText = trenchDepth.toFixed(2);
+            document.getElementById('printDimWaste').innerText = waste.toFixed(2);
+            document.getElementById('printDimPonds').innerText = totalPonds;
+
+            document.getElementById('printAreaA').innerText = isNaN(areaA) ? '0.00' : areaA.toFixed(2);
+            document.getElementById('printAreaBD').innerText = isNaN(areaB*2) ? '0.00' : (areaB*2).toFixed(2);
+            document.getElementById('printAreaCE').innerText = isNaN(areaC*2) ? '0.00' : (areaC*2).toFixed(2);
+            document.getElementById('printAreaF').innerText = isNaN(areaF) ? '0.00' : areaF.toFixed(2);
+            document.getElementById('printAreaGH').innerText = isNaN(areaG+areaH) ? '0.00' : (areaG+areaH).toFixed(2);
+            
+            document.getElementById('printTotalArea').innerText = isNaN(totalArea) ? '0.00' : totalArea.toFixed(2);
+            document.getElementById('printWastePct').innerText = waste.toFixed(2);
+            document.getElementById('printTotalAreaWaste').innerText = isNaN(totalAreaWithWaste) ? '0.00' : totalAreaWithWaste.toFixed(2);
+            document.getElementById('printTotalPonds').innerText = totalPonds;
+            document.getElementById('printTotalQuantity').innerText = isNaN(totalQuantity) ? '0.00' : totalQuantity.toFixed(2);
+        }
+
+        // Shared helper function to update SVG geometry and texture seams
+        function updateSvgElements(svgId, centerX, centerY, scale, width, length, topWidth, topLength, bermWidth, trenchWidth, trenchDepth, wTrench_half, lTrench_half, wBerm_half, lBerm_half, wA_half, lA_half) {
+            const svg = document.getElementById(svgId);
+            if (!svg) return;
+
+            // Dynamically scale the weld seam lines in the geomembrane texture pattern (2m wide rolls)
+            const geoPattern = svg.querySelector('#geoPattern');
+            if (geoPattern) {
+                const seamWidth = Math.max(5, 2 * scale); // 2 meters roll width in pixels
+                geoPattern.setAttribute('width', seamWidth);
+                geoPattern.setAttribute('height', seamWidth);
+                const lines = geoPattern.querySelectorAll('line');
+                if (lines[0]) {
+                    lines[0].setAttribute('x2', 0);
+                    lines[0].setAttribute('y2', seamWidth);
+                }
+                if (lines[1]) {
+                    lines[1].setAttribute('x2', 1);
+                    lines[1].setAttribute('y2', seamWidth);
+                }
+            }
+
+            const rectG = svg.querySelector('#rectG');
+            rectG.setAttribute('x', centerX - wTrench_half);
+            rectG.setAttribute('y', centerY - lTrench_half);
+            rectG.setAttribute('width', Math.max(10, (topWidth + 2 * bermWidth + 2 * trenchWidth) * scale));
+            rectG.setAttribute('height', Math.max(10, (topLength + 2 * bermWidth + 2 * trenchWidth) * scale));
+
+            const rectTrenchLine = svg.querySelector('#rectTrenchLine');
+            if (rectTrenchLine) {
+                rectTrenchLine.setAttribute('x', centerX - wTrench_half);
+                rectTrenchLine.setAttribute('y', centerY - lTrench_half);
+                rectTrenchLine.setAttribute('width', Math.max(10, (topWidth + 2 * bermWidth + 2 * trenchWidth) * scale));
+                rectTrenchLine.setAttribute('height', Math.max(10, (topLength + 2 * bermWidth + 2 * trenchWidth) * scale));
+            }
+
+            const rectF = svg.querySelector('#rectF');
+            rectF.setAttribute('x', centerX - wBerm_half);
+            rectF.setAttribute('y', centerY - lBerm_half);
+            rectF.setAttribute('width', Math.max(8, (topWidth + 2 * bermWidth) * scale));
+            rectF.setAttribute('height', Math.max(8, (topLength + 2 * bermWidth) * scale));
+
+            const rectA = svg.querySelector('#rectA');
+            rectA.setAttribute('x', centerX - wA_half);
+            rectA.setAttribute('y', centerY - lA_half);
+            rectA.setAttribute('width', Math.max(4, width * scale));
+            rectA.setAttribute('height', Math.max(4, length * scale));
+
+            const rectAShadow = svg.querySelector('#rectAShadow');
+            if (rectAShadow) {
+                rectAShadow.setAttribute('x', centerX - wA_half);
+                rectAShadow.setAttribute('y', centerY - lA_half);
+                rectAShadow.setAttribute('width', Math.max(4, width * scale));
+                rectAShadow.setAttribute('height', Math.max(4, length * scale));
+            }
+
+            const xRim1 = centerX - (topWidth/2)*scale, xRim2 = centerX + (topWidth/2)*scale;
+            const yRim1 = centerY - (topLength/2)*scale, yRim2 = centerY + (topLength/2)*scale;
+            const xA1 = centerX - wA_half, xA2 = centerX + wA_half;
+            const yA1 = centerY - lA_half, yA2 = centerY + lA_half;
+
+            const ptsB = `${xRim1},${yRim1} ${xRim2},${yRim1} ${xA2},${yA1} ${xA1},${yA1}`;
+            const ptsD = `${xRim1},${yRim2} ${xRim2},${yRim2} ${xA2},${yA2} ${xA1},${yA2}`;
+            const ptsC = `${xRim1},${yRim1} ${xA1},${yA1} ${xA1},${yA2} ${xRim1},${yRim2}`;
+            const ptsE = `${xRim2},${yRim1} ${xA2},${yA1} ${xA2},${yA2} ${xRim2},${yRim2}`;
+
+            svg.querySelector('#polyB').setAttribute('points', ptsB);
+            svg.querySelector('#polyD').setAttribute('points', ptsD);
+            svg.querySelector('#polyC').setAttribute('points', ptsC);
+            svg.querySelector('#polyE').setAttribute('points', ptsE);
+
+            if (svg.querySelector('#polyBShade')) svg.querySelector('#polyBShade').setAttribute('points', ptsB);
+            if (svg.querySelector('#polyDShade')) svg.querySelector('#polyDShade').setAttribute('points', ptsD);
+            if (svg.querySelector('#polyCShade')) svg.querySelector('#polyCShade').setAttribute('points', ptsC);
+            if (svg.querySelector('#polyEShade')) svg.querySelector('#polyEShade').setAttribute('points', ptsE);
+
+            svg.querySelector('#textA').setAttribute('x', centerX);
+            svg.querySelector('#textA').setAttribute('y', centerY);
+
+            svg.querySelector('#textB').setAttribute('x', centerX);
+            svg.querySelector('#textB').setAttribute('y', Math.max(0, yRim1 + (yA1 - yRim1)/2));
+
+            svg.querySelector('#textD').setAttribute('x', centerX);
+            svg.querySelector('#textD').setAttribute('y', Math.max(0, yA2 + (yRim2 - yA2)/2));
+
+            svg.querySelector('#textC').setAttribute('x', Math.max(0, xRim1 + (xA1 - xRim1)/2));
+            svg.querySelector('#textC').setAttribute('y', centerY);
+
+            svg.querySelector('#textE').setAttribute('x', Math.max(0, xA2 + (xRim2 - xA2)/2));
+            svg.querySelector('#textE').setAttribute('y', centerY);
+
+            const yBermTop = centerY - lBerm_half;
+            svg.querySelector('#textF').setAttribute('x', centerX);
+            svg.querySelector('#textF').setAttribute('y', Math.max(0, yBermTop + (yRim1 - yBermTop)/2));
+
+            const yTrenchTop = centerY - lTrench_half;
+            svg.querySelector('#textG').setAttribute('x', centerX);
+            svg.querySelector('#textG').setAttribute('y', Math.max(0, yTrenchTop + (yBermTop - yTrenchTop)/2));
+
+            // Dimension lines and extensions horizontal
+            svg.querySelector('#extH1').setAttribute('x1', xA1); svg.querySelector('#extH1').setAttribute('y1', yA2);
+            svg.querySelector('#extH1').setAttribute('x2', xA1); svg.querySelector('#extH1').setAttribute('y2', 600);
+
+            svg.querySelector('#extH2').setAttribute('x1', xA2); svg.querySelector('#extH2').setAttribute('y1', yA2);
+            svg.querySelector('#extH2').setAttribute('x2', xA2); svg.querySelector('#extH2').setAttribute('y2', 600);
+
+            svg.querySelector('#extH3').setAttribute('x1', xRim1); svg.querySelector('#extH3').setAttribute('y1', yRim2);
+            svg.querySelector('#extH3').setAttribute('x2', xRim1); svg.querySelector('#extH3').setAttribute('y2', 640);
+
+            svg.querySelector('#extH4').setAttribute('x1', xRim2); svg.querySelector('#extH4').setAttribute('y1', yRim2);
+            svg.querySelector('#extH4').setAttribute('x2', xRim2); svg.querySelector('#extH4').setAttribute('y2', 640);
+
+            svg.querySelector('#dimH1').setAttribute('x1', xA1); svg.querySelector('#dimH1').setAttribute('y1', 580);
+            svg.querySelector('#dimH1').setAttribute('x2', xA2); svg.querySelector('#dimH1').setAttribute('y2', 580);
+            svg.querySelector('#svgDimWidthA').setAttribute('x', centerX);
+            svg.querySelector('#svgDimWidthA').setAttribute('y', 570);
+            svg.querySelector('#svgDimWidthA').textContent = `${width.toFixed(2)} m`;
+
+            svg.querySelector('#dimH2').setAttribute('x1', xRim1); svg.querySelector('#dimH2').setAttribute('y1', 620);
+            svg.querySelector('#dimH2').setAttribute('x2', xRim2); svg.querySelector('#dimH2').setAttribute('y2', 620);
+            svg.querySelector('#svgDimWidthTop').setAttribute('x', centerX);
+            svg.querySelector('#svgDimWidthTop').setAttribute('y', 610);
+            svg.querySelector('#svgDimWidthTop').textContent = `${topWidth.toFixed(2)} m`;
+
+            // Dimension lines and extensions vertical
+            const yBermBottom = centerY + lBerm_half;
+            const yTrenchBottom = centerY + lTrench_half;
+
+            svg.querySelector('#extV1').setAttribute('x1', xA2); svg.querySelector('#extV1').setAttribute('y1', yA1);
+            svg.querySelector('#extV1').setAttribute('x2', 400); svg.querySelector('#extV1').setAttribute('y2', yA1);
+
+            svg.querySelector('#extV2').setAttribute('x1', xA2); svg.querySelector('#extV2').setAttribute('y1', yA2);
+            svg.querySelector('#extV2').setAttribute('x2', 400); svg.querySelector('#extV2').setAttribute('y2', yA2);
+
+            svg.querySelector('#extV3').setAttribute('x1', xRim2); svg.querySelector('#extV3').setAttribute('y1', yRim1);
+            svg.querySelector('#extV3').setAttribute('x2', 440); svg.querySelector('#extV3').setAttribute('y2', yRim1);
+
+            svg.querySelector('#extV4').setAttribute('x1', xRim2); svg.querySelector('#extV4').setAttribute('y1', yRim2);
+            svg.querySelector('#extV4').setAttribute('x2', 440); svg.querySelector('#extV4').setAttribute('y2', yRim2);
+
+            svg.querySelector('#extV5').setAttribute('x1', centerX + wBerm_half); svg.querySelector('#extV5').setAttribute('y1', yBermTop);
+            svg.querySelector('#extV5').setAttribute('x2', 480); svg.querySelector('#extV5').setAttribute('y2', yBermTop);
+
+            svg.querySelector('#extV6').setAttribute('x1', centerX + wBerm_half); svg.querySelector('#extV6').setAttribute('y1', yBermBottom);
+            svg.querySelector('#extV6').setAttribute('x2', 480); svg.querySelector('#extV6').setAttribute('y2', yBermBottom);
+
+            svg.querySelector('#extV7').setAttribute('x1', centerX + wTrench_half); svg.querySelector('#extV7').setAttribute('y1', yTrenchTop);
+            svg.querySelector('#extV7').setAttribute('x2', 520); svg.querySelector('#extV7').setAttribute('y2', yTrenchTop);
+
+            svg.querySelector('#extV8').setAttribute('x1', centerX + wTrench_half); svg.querySelector('#extV8').setAttribute('y1', yTrenchBottom);
+            svg.querySelector('#extV8').setAttribute('x2', 520); svg.querySelector('#extV8').setAttribute('y2', yTrenchBottom);
+
+            svg.querySelector('#dimV1').setAttribute('x1', 380); svg.querySelector('#dimV1').setAttribute('y1', yA1);
+            svg.querySelector('#dimV1').setAttribute('x2', 380); svg.querySelector('#dimV1').setAttribute('y2', yA2);
+            svg.querySelector('#svgDimLengthA').setAttribute('x', 375);
+            svg.querySelector('#svgDimLengthA').setAttribute('y', centerY);
+            svg.querySelector('#svgDimLengthA').setAttribute('transform', `rotate(-90 375 ${centerY})`);
+            svg.querySelector('#svgDimLengthA').textContent = `${length.toFixed(2)} m`;
+
+            svg.querySelector('#dimV2').setAttribute('x1', 420); svg.querySelector('#dimV2').setAttribute('y1', yRim1);
+            svg.querySelector('#dimV2').setAttribute('x2', 420); svg.querySelector('#dimV2').setAttribute('y2', yRim2);
+            svg.querySelector('#svgDimLengthTop').setAttribute('x', 415);
+            svg.querySelector('#svgDimLengthTop').setAttribute('y', centerY);
+            svg.querySelector('#svgDimLengthTop').setAttribute('transform', `rotate(-90 415 ${centerY})`);
+            svg.querySelector('#svgDimLengthTop').textContent = `${topLength.toFixed(2)} m`;
+
+            svg.querySelector('#dimV3').setAttribute('x1', 460); svg.querySelector('#dimV3').setAttribute('y1', yBermTop);
+            svg.querySelector('#dimV3').setAttribute('x2', 460); svg.querySelector('#dimV3').setAttribute('y2', yBermBottom);
+            svg.querySelector('#svgDimLengthBerm').setAttribute('x', 455);
+            svg.querySelector('#svgDimLengthBerm').setAttribute('y', centerY);
+            svg.querySelector('#svgDimLengthBerm').setAttribute('transform', `rotate(-90 455 ${centerY})`);
+            svg.querySelector('#svgDimLengthBerm').textContent = `${(topLength + 2 * bermWidth).toFixed(2)} m`;
+
+            svg.querySelector('#dimV4').setAttribute('x1', 500); svg.querySelector('#dimV4').setAttribute('y1', yTrenchTop);
+            svg.querySelector('#dimV4').setAttribute('x2', 500); svg.querySelector('#dimV4').setAttribute('y2', yTrenchBottom);
+            svg.querySelector('#svgDimLengthTotal').setAttribute('x', 495);
+            svg.querySelector('#svgDimLengthTotal').setAttribute('y', centerY);
+            svg.querySelector('#svgDimLengthTotal').setAttribute('transform', `rotate(-90 495 ${centerY})`);
+            svg.querySelector('#svgDimLengthTotal').textContent = `${(topLength + 2 * bermWidth + 2 * trenchWidth).toFixed(2)} m`;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const parts = dateStr.split('-');
+            if (parts.length !== 3) return dateStr;
+            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            const day = parseInt(parts[2]);
+            const month = months[parseInt(parts[1]) - 1];
+            const year = parts[0];
+            return `${day} ${month} ${year}`;
+        }
+
+        async function fetchSavedProjects() {
+            showModalStep(2);
+            const listDiv = document.getElementById('projectList');
+            listDiv.innerHTML = '<div style="color: var(--text-muted); padding: 1rem; text-align: center;">Memuat proyek tersimpan...</div>';
+            
+            try {
+                const response = await fetch(gasUrl);
+                const res = await response.json();
+                if (res.status === 'success' && res.data) {
+                    allProjects = res.data;
+                    renderProjects(allProjects);
+                } else {
+                    listDiv.innerHTML = '<div style="color: #ff4a4a; padding: 1rem; text-align: center;">Gagal memuat data dari server.</div>';
+                }
+            } catch (err) {
+                console.error(err);
+                listDiv.innerHTML = '<div style="color: #ff4a4a; padding: 1rem; text-align: center;">Kesalahan koneksi ke Google Apps Script.</div>';
+            }
+        }
+        
+        function renderProjects(projects) {
+            const listDiv = document.getElementById('projectList');
+            listDiv.innerHTML = '';
+            if (projects.length === 0) {
+                listDiv.innerHTML = '<div style="color: var(--text-muted); padding: 1.5rem; text-align: center;">Tidak ada proyek ditemukan.</div>';
+                return;
+            }
+            
+            projects.forEach(p => {
+                const item = document.createElement('div');
+                item.className = 'project-item';
+                
+                const date = new Date(p.timestamp).toLocaleDateString('id-ID', {
+                    day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+                
+                item.innerHTML = `
+                    <div style="flex: 1; padding-right: 1rem;">
+                        <div style="font-weight: 600; color: var(--text-main); font-size: 1rem;">${p.projectName}</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">${date}</div>
+                    </div>
+                    <button class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;" onclick="loadSpecificProject('${p.id}')">Pilih</button>
+                `;
+                listDiv.appendChild(item);
+            });
+        }
+        
+        function filterProjects() {
+            const q = document.getElementById('projectSearch').value.toLowerCase();
+            const filtered = allProjects.filter(p => p.projectName.toLowerCase().includes(q));
+            renderProjects(filtered);
+        }
+
+        async function loadSpecificProject(id) {
+            try {
+                const response = await fetch(`${gasUrl}?id=${id}`);
+                const data = await response.json();
+                
+                if (data.inputs) {
+                    const i = data.inputs;
+                    document.getElementById('projectName').value = i.projectName || '';
+                    document.getElementById('location').value = i.location || '';
+                    document.getElementById('client').value = i.client || '';
+                    document.getElementById('marketing').value = i.marketing || '';
+                    document.getElementById('designer').value = i.designer || '';
+                    if (i.date) document.getElementById('date').value = i.date;
+                    
+                    document.getElementById('length').value = i.length || 8;
+                    document.getElementById('width').value = i.width || 9;
+                    document.getElementById('depth').value = i.depth || 2;
+                    document.getElementById('slopeType').value = i.slopeType || '1';
+                    
+                    toggleSlopeInput();
+                    
+                    document.getElementById('slopeValue1').value = i.slopeValue1 || 63;
+                    document.getElementById('slopeValue2').value = i.slopeValue2 || 2;
+                    
+                    document.getElementById('bermWidth').value = i.bermWidth || 2;
+                    document.getElementById('trenchDepth').value = i.trenchDepth || 0.5;
+                    document.getElementById('trenchWidth').value = i.trenchWidth || 0.5;
+                    document.getElementById('waste').value = i.waste || 10;
+                    document.getElementById('totalPonds').value = i.totalPonds || 2;
+                    
+                    document.getElementById('projectIdInput').value = id;
+                    
+                    calculate();
+                    closeModal();
+                    alert("Proyek berhasil dimuat!");
+                } else {
+                    alert("Gagal memuat detail proyek.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Kesalahan koneksi saat memuat proyek.");
+            }
+        }
+
+        async function saveProject() {
+            const btn = document.getElementById('btnSave');
+            btn.innerText = "Menyimpan...";
+
+            // Solve CORS on file://: generate or reuse project ID on frontend first
+            let id = document.getElementById('projectIdInput').value;
+            if (!id) {
+                // Generate simple UUID
+                id = 'proj-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now().toString(36);
+                document.getElementById('projectIdInput').value = id;
+            }
+
+            const payload = {
+                id: id,
+                projectName: document.getElementById('projectName').value,
+                inputs: {
+                    projectName: document.getElementById('projectName').value,
+                    location: document.getElementById('location').value,
+                    client: document.getElementById('client').value,
+                    marketing: document.getElementById('marketing').value,
+                    designer: document.getElementById('designer').value,
+                    date: document.getElementById('date').value,
+                    
+                    length: document.getElementById('length').value,
+                    width: document.getElementById('width').value,
+                    depth: document.getElementById('depth').value,
+                    slopeType: document.getElementById('slopeType').value,
+                    slopeValue1: document.getElementById('slopeValue1').value,
+                    slopeValue2: document.getElementById('slopeValue2').value,
+                    
+                    bermWidth: document.getElementById('bermWidth').value,
+                    trenchDepth: document.getElementById('trenchDepth').value,
+                    trenchWidth: document.getElementById('trenchWidth').value,
+                    waste: document.getElementById('waste').value,
+                    totalPonds: document.getElementById('totalPonds').value
+                }
+            };
+
+            try {
+                // Use mode: 'no-cors' so browser bypasses CORS blocks on local file redirecting to google usercontent site.
+                // Request reaches Apps Script successfully, saves data, but response body is opaque (cannot read it).
+                // Since we pre-generate the ID, we do not need to read the response!
+                await fetch(gasUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify(payload)
+                });
+                
+                btn.innerText = "Berhasil Disimpan!";
+                alert("Proyek berhasil disimpan!\nSimpan ID Proyek ini jika ingin memanggilnya manual: " + id);
+                setTimeout(() => btn.innerText = "Simpan Project", 3000);
+            } catch (err) {
+                console.error(err);
+                btn.innerText = "Error Koneksi";
+                setTimeout(() => btn.innerText = "Simpan Project", 3000);
+            }
+        }
+
+        // Initialize calculation
+        calculate();
+    </script>
+</body>
+</html>
