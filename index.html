@@ -288,6 +288,25 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Detailed Calculations Breakdown (Moved here to prevent scroll) -->
+                <div class="glass-panel" style="padding: 1.5rem; margin-top: 1rem;">
+                    <h3 style="margin-bottom: 1rem;">📋 Rincian Hasil</h3>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr><th>Bidang</th><th>Luas</th><th>Satuan</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Dasar (A)</td><td id="resAreaA">0.00</td><td>m²</td></tr>
+                                <tr><td>Dinding Panjang (B & D)</td><td id="resAreaBD">0.00</td><td>m²</td></tr>
+                                <tr><td>Dinding Lebar (C & E)</td><td id="resAreaCE">0.00</td><td>m²</td></tr>
+                                <tr><td>Berm (F)</td><td id="resAreaF">0.00</td><td>m²</td></tr>
+                                <tr><td>Anchor Trench (G + H)</td><td id="resAreaGH">0.00</td><td>m²</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
             
             <!-- Right Side: Inputs & Project Details -->
@@ -298,19 +317,19 @@
                     <div class="grid grid-cols-2">
                         <div class="form-group">
                             <label class="form-label">Nama Proyek</label>
-                            <input type="text" id="projectName" class="form-input" value="Kolam Penampungan Air">
+                            <input type="text" id="projectName" class="form-input" value="">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Lokasi</label>
-                            <input type="text" id="location" class="form-input" value="Tanjung Enim - Sumatera Selatan">
+                            <input type="text" id="location" class="form-input" value="">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Client</label>
-                            <input type="text" id="client" class="form-input" value="Bapak Ferdy Manda">
+                            <input type="text" id="client" class="form-input" value="">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Marketing</label>
-                            <input type="text" id="marketing" class="form-input" value="Sandi">
+                            <input type="text" id="marketing" class="form-input" value="">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Designer</label>
@@ -336,15 +355,15 @@
                         </div>
                         <div class="form-group">
                             <label class="form-label" id="labelLength">Panjang Dasar (m)</label>
-                            <input type="number" id="length" class="form-input" value="8" oninput="calculate()">
+                            <input type="number" id="length" class="form-input" value="" oninput="calculate()">
                         </div>
                         <div class="form-group">
                             <label class="form-label" id="labelWidth">Lebar Dasar (m)</label>
-                            <input type="number" id="width" class="form-input" value="9" oninput="calculate()">
+                            <input type="number" id="width" class="form-input" value="" oninput="calculate()">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Kedalaman (m)</label>
-                            <input type="number" id="depth" class="form-input" value="2" oninput="calculate()">
+                            <input type="number" id="depth" class="form-input" value="" oninput="calculate()">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Tipe Lereng</label>
@@ -356,52 +375,33 @@
 
                         <div class="form-group" id="groupSlope1" style="grid-column: span 2;">
                             <label class="form-label" id="labelSlope1">Kemiringan (Derajat)</label>
-                            <input type="number" id="slopeValue1" class="form-input" value="63" oninput="calculate()">
+                            <input type="number" id="slopeValue1" class="form-input" value="" oninput="calculate()">
                         </div>
                         <div class="form-group" id="groupSlope2" style="display: none;">
                             <label class="form-label">Horizontal (H)</label>
-                            <input type="number" id="slopeValue2" class="form-input" value="2" oninput="calculate()">
+                            <input type="number" id="slopeValue2" class="form-input" value="" oninput="calculate()">
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">Lebar Berm (m)</label>
-                            <input type="number" id="bermWidth" class="form-input" value="2" oninput="calculate()">
+                            <input type="number" id="bermWidth" class="form-input" value="" oninput="calculate()">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Kedalaman Anchor (m)</label>
-                            <input type="number" id="trenchDepth" class="form-input" value="0.5" oninput="calculate()">
+                            <input type="number" id="trenchDepth" class="form-input" value="" oninput="calculate()">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Lebar Anchor (m)</label>
-                            <input type="number" id="trenchWidth" class="form-input" value="0.5" oninput="calculate()">
+                            <input type="number" id="trenchWidth" class="form-input" value="" oninput="calculate()">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Waste (%)</label>
-                            <input type="number" id="waste" class="form-input" value="10" oninput="calculate()">
+                            <input type="number" id="waste" class="form-input" value="" oninput="calculate()">
                         </div>
                         <div class="form-group" style="grid-column: span 2;">
                             <label class="form-label">Jumlah Kolam</label>
-                            <input type="number" id="totalPonds" class="form-input" value="2" oninput="calculate()">
+                            <input type="number" id="totalPonds" class="form-input" value="" oninput="calculate()">
                         </div>
-                    </div>
-                </div>
-
-                <!-- Detailed Calculations Breakdown -->
-                <div class="glass-panel" style="padding: 1.5rem;">
-                    <h3 style="margin-bottom: 1rem;">📋 Rincian Hasil</h3>
-                    <div style="overflow-x: auto;">
-                        <table class="data-table">
-                            <thead>
-                                <tr><th>Bidang</th><th>Luas</th><th>Satuan</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>Dasar (A)</td><td id="resAreaA">0.00</td><td>m²</td></tr>
-                                <tr><td>Dinding Panjang (B & D)</td><td id="resAreaBD">0.00</td><td>m²</td></tr>
-                                <tr><td>Dinding Lebar (C & E)</td><td id="resAreaCE">0.00</td><td>m²</td></tr>
-                                <tr><td>Berm (F)</td><td id="resAreaF">0.00</td><td>m²</td></tr>
-                                <tr><td>Anchor Trench (G + H)</td><td id="resAreaGH">0.00</td><td>m²</td></tr>
-                            </tbody>
-                        </table>
                     </div>
                 </div>
             </div>
@@ -639,14 +639,17 @@
 
             const dimMode = document.getElementById('dimMode').value;
             let baseLength, baseWidth, topLength, topWidth;
-            const slopeRun = depth / Math.tan(angleRad);
+            
+            // Safe division for slope calculation when slopeValue or angle is 0
+            const tanAngle = Math.tan(angleRad);
+            const slopeRun = (angleDeg > 0 && tanAngle > 0) ? (depth / tanAngle) : 0;
 
             if (dimMode === 'top') {
                 // User inputs top dimensions, derive base
                 topLength = length;
                 topWidth = width;
-                baseLength = length - 2 * slopeRun;
-                baseWidth = width - 2 * slopeRun;
+                baseLength = Math.max(0, length - 2 * slopeRun);
+                baseWidth = Math.max(0, width - 2 * slopeRun);
             } else {
                 // User inputs base (bottom) dimensions, derive top
                 baseLength = length;
@@ -659,8 +662,13 @@
             const widthWithTrench = widthWithBerm + 2 * trenchWidth;
             
             const areaA = baseLength * baseWidth;
-            const areaB = 0.5 * (baseLength + topLength) * (depth / Math.sin(angleRad));
-            const areaC = 0.5 * (baseWidth + topWidth) * (depth / Math.sin(angleRad));
+
+            // Safe division for hypotenuse (wall slope length)
+            const sinAngle = Math.sin(angleRad);
+            const slopeHyp = (angleDeg > 0 && sinAngle > 0) ? (depth / sinAngle) : 0;
+
+            const areaB = 0.5 * (baseLength + topLength) * slopeHyp;
+            const areaC = 0.5 * (baseWidth + topWidth) * slopeHyp;
             const areaD = areaB;
             const areaE = areaC;
             
@@ -679,7 +687,8 @@
             const totalW = topWidth + 2 * bermWidth + 2 * trenchWidth;
             const totalL = topLength + 2 * bermWidth + 2 * trenchWidth;
 
-            const scale = Math.min(240 / totalW, 420 / totalL);
+            // Safe scale logic to prevent Division by Zero when inputs are empty
+            const scale = (totalW > 0 && totalL > 0) ? Math.min(240 / totalW, 420 / totalL) : 0;
 
             const wA_half = (baseWidth / 2) * scale;
             const wTop_half = (topWidth / 2) * scale;
