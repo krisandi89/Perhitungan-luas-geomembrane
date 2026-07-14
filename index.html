@@ -350,20 +350,20 @@
                             <label class="form-label">Mode Input Dimensi</label>
                             <select id="dimMode" class="form-input" onchange="toggleDimMode(); calculate()">
                                 <option value="bottom">Panjang & Lebar Dasar (Bawah)</option>
-                                <option value="top">Panjang & Lebar Atas Kolam</option>
+                                <option value="top" selected>Panjang & Lebar Atas Kolam</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label" id="labelLength">Panjang Dasar (m)</label>
-                            <input type="number" id="length" class="form-input" value="" oninput="calculate()">
+                            <label class="form-label" id="labelLength">Panjang Atas (m)</label>
+                            <input type="number" id="length" class="form-input" placeholder="10" value="" oninput="calculate()">
                         </div>
                         <div class="form-group">
-                            <label class="form-label" id="labelWidth">Lebar Dasar (m)</label>
-                            <input type="number" id="width" class="form-input" value="" oninput="calculate()">
+                            <label class="form-label" id="labelWidth">Lebar Atas (m)</label>
+                            <input type="number" id="width" class="form-input" placeholder="15" value="" oninput="calculate()">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Kedalaman (m)</label>
-                            <input type="number" id="depth" class="form-input" value="" oninput="calculate()">
+                            <input type="number" id="depth" class="form-input" placeholder="2" value="" oninput="calculate()">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Tipe Lereng</label>
@@ -375,32 +375,32 @@
 
                         <div class="form-group" id="groupSlope1" style="grid-column: span 2;">
                             <label class="form-label" id="labelSlope1">Kemiringan (Derajat)</label>
-                            <input type="number" id="slopeValue1" class="form-input" value="" oninput="calculate()">
+                            <input type="number" id="slopeValue1" class="form-input" placeholder="30" value="" oninput="calculate()">
                         </div>
                         <div class="form-group" id="groupSlope2" style="display: none;">
                             <label class="form-label">Horizontal (H)</label>
-                            <input type="number" id="slopeValue2" class="form-input" value="" oninput="calculate()">
+                            <input type="number" id="slopeValue2" class="form-input" placeholder="2" value="" oninput="calculate()">
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">Lebar Berm (m)</label>
-                            <input type="number" id="bermWidth" class="form-input" value="" oninput="calculate()">
+                            <input type="number" id="bermWidth" class="form-input" placeholder="1.5" value="" oninput="calculate()">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Kedalaman Anchor (m)</label>
-                            <input type="number" id="trenchDepth" class="form-input" value="" oninput="calculate()">
+                            <input type="number" id="trenchDepth" class="form-input" placeholder="0.5" value="" oninput="calculate()">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Lebar Anchor (m)</label>
-                            <input type="number" id="trenchWidth" class="form-input" value="" oninput="calculate()">
+                            <input type="number" id="trenchWidth" class="form-input" placeholder="0.5" value="" oninput="calculate()">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Waste (%)</label>
-                            <input type="number" id="waste" class="form-input" value="" oninput="calculate()">
+                            <input type="number" id="waste" class="form-input" placeholder="10" value="" oninput="calculate()">
                         </div>
                         <div class="form-group" style="grid-column: span 2;">
                             <label class="form-label">Jumlah Kolam</label>
-                            <input type="number" id="totalPonds" class="form-input" value="" oninput="calculate()">
+                            <input type="number" id="totalPonds" class="form-input" placeholder="1" value="" oninput="calculate()">
                         </div>
                     </div>
                 </div>
@@ -616,17 +616,25 @@
         }
 
         function calculate() {
-            const length = parseFloat(document.getElementById('length').value) || 0;
-            const width = parseFloat(document.getElementById('width').value) || 0;
-            const depth = parseFloat(document.getElementById('depth').value) || 0;
+            const getVal = (id) => {
+                const el = document.getElementById(id);
+                if (el.value === '') {
+                    return parseFloat(el.placeholder) || 0;
+                }
+                return parseFloat(el.value) || 0;
+            };
+
+            const length = getVal('length');
+            const width = getVal('width');
+            const depth = getVal('depth');
             const slopeType = document.getElementById('slopeType').value;
-            const slopeValue1 = parseFloat(document.getElementById('slopeValue1').value) || 0;
-            const slopeValue2 = parseFloat(document.getElementById('slopeValue2').value) || 0;
-            const bermWidth = parseFloat(document.getElementById('bermWidth').value) || 0;
-            const trenchDepth = parseFloat(document.getElementById('trenchDepth').value) || 0;
-            const trenchWidth = parseFloat(document.getElementById('trenchWidth').value) || 0;
-            const waste = parseFloat(document.getElementById('waste').value) || 0;
-            const totalPonds = parseFloat(document.getElementById('totalPonds').value) || 0;
+            const slopeValue1 = getVal('slopeValue1');
+            const slopeValue2 = getVal('slopeValue2');
+            const bermWidth = getVal('bermWidth');
+            const trenchDepth = getVal('trenchDepth');
+            const trenchWidth = getVal('trenchWidth');
+            const waste = getVal('waste');
+            const totalPonds = getVal('totalPonds');
 
             let angleDeg = 0;
             if (slopeType === '1') {
