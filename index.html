@@ -681,14 +681,14 @@
             const totalQuantity = totalAreaWithWaste * totalPonds;
 
             // --- SVG Diagram Sizing Math ---
-            const centerX = 200;
-            const centerY = 300;
+            const centerX = 260;
+            const centerY = 230;
             
             const totalW = topWidth + 2 * bermWidth + 2 * trenchWidth;
             const totalL = topLength + 2 * bermWidth + 2 * trenchWidth;
 
-            // Safe scale logic to prevent Division by Zero when inputs are empty
-            const scale = (totalW > 0 && totalL > 0) ? Math.min(240 / totalW, 420 / totalL) : 0;
+            // Safe scale logic to prevent Division by Zero when inputs are empty (enlarged limits)
+            const scale = (totalW > 0 && totalL > 0) ? Math.min(420 / totalW, 450 / totalL) : 0;
 
             const wA_half = (baseWidth / 2) * scale;
             const wTop_half = (topWidth / 2) * scale;
@@ -706,8 +706,8 @@
             // Sync print SVG content first
             document.getElementById('printSchematic').innerHTML = document.getElementById('schematic').innerHTML;
 
-            // Update Print SVG in Landscape Orientation (swapped width/length values to rotate)
-            const scalePrint = (totalL > 0 && totalW > 0) ? Math.min(380 / totalL, 300 / totalW) : 0;
+            // Update Print SVG in Landscape Orientation (swapped width/length values to rotate and enlarged scale)
+            const scalePrint = (totalL > 0 && totalW > 0) ? Math.min(540 / totalL, 380 / totalW) : 0;
             const wA_half_print = (baseWidth / 2) * scalePrint;
             const wTop_half_print = (topWidth / 2) * scalePrint;
             const wBerm_half_print = ((topWidth + 2 * bermWidth) / 2) * scalePrint;
@@ -720,8 +720,8 @@
 
             updateSvgElements(
                 'printSchematic',
-                280, // centerX_print
-                210, // centerY_print
+                310, // centerX_print (shifted for better landscape centering)
+                220, // centerY_print
                 scalePrint,
                 baseLength, // Swapped: length becomes width
                 baseWidth,  // Swapped: width becomes length
@@ -892,94 +892,71 @@
             svg.querySelector('#textE').setAttribute('x', Math.max(0, xA2 + (xRim2 - xA2)/2));
             svg.querySelector('#textE').setAttribute('y', centerY);
 
-            const yBermTop = centerY - lBerm_half;
-            svg.querySelector('#textF').setAttribute('x', centerX);
-            svg.querySelector('#textF').setAttribute('y', Math.max(0, yBermTop + (yRim1 - yBermTop)/2));
+            // Dimension lines and extensions horizontal (using dynamic bottomEdge relative offsets)
+            const bottomEdge = centerY + lTrench_half;
 
-            const yTrenchTop = centerY - lTrench_half;
-            svg.querySelector('#textG').setAttribute('x', centerX);
-            svg.querySelector('#textG').setAttribute('y', Math.max(0, yTrenchTop + (yBermTop - yTrenchTop)/2));
-
-            // Dimension lines and extensions horizontal (using dynamic centerY offsets)
             svg.querySelector('#extH1').setAttribute('x1', xA1); svg.querySelector('#extH1').setAttribute('y1', yA2);
-            svg.querySelector('#extH1').setAttribute('x2', xA1); svg.querySelector('#extH1').setAttribute('y2', centerY + 300);
+            svg.querySelector('#extH1').setAttribute('x2', xA1); svg.querySelector('#extH1').setAttribute('y2', bottomEdge + 25);
 
             svg.querySelector('#extH2').setAttribute('x1', xA2); svg.querySelector('#extH2').setAttribute('y1', yA2);
-            svg.querySelector('#extH2').setAttribute('x2', xA2); svg.querySelector('#extH2').setAttribute('y2', centerY + 300);
+            svg.querySelector('#extH2').setAttribute('x2', xA2); svg.querySelector('#extH2').setAttribute('y2', bottomEdge + 25);
 
             svg.querySelector('#extH3').setAttribute('x1', xRim1); svg.querySelector('#extH3').setAttribute('y1', yRim2);
-            svg.querySelector('#extH3').setAttribute('x2', xRim1); svg.querySelector('#extH3').setAttribute('y2', centerY + 340);
+            svg.querySelector('#extH3').setAttribute('x2', xRim1); svg.querySelector('#extH3').setAttribute('y2', bottomEdge + 50);
 
             svg.querySelector('#extH4').setAttribute('x1', xRim2); svg.querySelector('#extH4').setAttribute('y1', yRim2);
-            svg.querySelector('#extH4').setAttribute('x2', xRim2); svg.querySelector('#extH4').setAttribute('y2', centerY + 340);
+            svg.querySelector('#extH4').setAttribute('x2', xRim2); svg.querySelector('#extH4').setAttribute('y2', bottomEdge + 50);
 
-            svg.querySelector('#dimH1').setAttribute('x1', xA1); svg.querySelector('#dimH1').setAttribute('y1', centerY + 280);
-            svg.querySelector('#dimH1').setAttribute('x2', xA2); svg.querySelector('#dimH1').setAttribute('y2', centerY + 280);
+            svg.querySelector('#dimH1').setAttribute('x1', xA1); svg.querySelector('#dimH1').setAttribute('y1', bottomEdge + 20);
+            svg.querySelector('#dimH1').setAttribute('x2', xA2); svg.querySelector('#dimH1').setAttribute('y2', bottomEdge + 20);
             svg.querySelector('#svgDimWidthA').setAttribute('x', centerX);
-            svg.querySelector('#svgDimWidthA').setAttribute('y', centerY + 270);
+            svg.querySelector('#svgDimWidthA').setAttribute('y', bottomEdge + 12);
             svg.querySelector('#svgDimWidthA').textContent = `${width.toFixed(2)} m`;
 
-            svg.querySelector('#dimH2').setAttribute('x1', xRim1); svg.querySelector('#dimH2').setAttribute('y1', centerY + 320);
-            svg.querySelector('#dimH2').setAttribute('x2', xRim2); svg.querySelector('#dimH2').setAttribute('y2', centerY + 320);
+            svg.querySelector('#dimH2').setAttribute('x1', xRim1); svg.querySelector('#dimH2').setAttribute('y1', bottomEdge + 45);
+            svg.querySelector('#dimH2').setAttribute('x2', xRim2); svg.querySelector('#dimH2').setAttribute('y2', bottomEdge + 45);
             svg.querySelector('#svgDimWidthTop').setAttribute('x', centerX);
-            svg.querySelector('#svgDimWidthTop').setAttribute('y', centerY + 310);
+            svg.querySelector('#svgDimWidthTop').setAttribute('y', bottomEdge + 37);
             svg.querySelector('#svgDimWidthTop').textContent = `${topWidth.toFixed(2)} m`;
 
-            // Dimension lines and extensions vertical (using dynamic centerX offsets)
-            const yBermBottom = centerY + lBerm_half;
-            const yTrenchBottom = centerY + lTrench_half;
+            // Dimension lines and extensions vertical (using dynamic rightEdge relative offsets)
+            const rightEdge = centerX + wTrench_half;
 
             svg.querySelector('#extV1').setAttribute('x1', xA2); svg.querySelector('#extV1').setAttribute('y1', yA1);
-            svg.querySelector('#extV1').setAttribute('x2', centerX + 200); svg.querySelector('#extV1').setAttribute('y2', yA1);
+            svg.querySelector('#extV1').setAttribute('x2', rightEdge + 25); svg.querySelector('#extV1').setAttribute('y2', yA1);
 
             svg.querySelector('#extV2').setAttribute('x1', xA2); svg.querySelector('#extV2').setAttribute('y1', yA2);
-            svg.querySelector('#extV2').setAttribute('x2', centerX + 200); svg.querySelector('#extV2').setAttribute('y2', yA2);
+            svg.querySelector('#extV2').setAttribute('x2', rightEdge + 25); svg.querySelector('#extV2').setAttribute('y2', yA2);
 
             svg.querySelector('#extV3').setAttribute('x1', xRim2); svg.querySelector('#extV3').setAttribute('y1', yRim1);
-            svg.querySelector('#extV3').setAttribute('x2', centerX + 240); svg.querySelector('#extV3').setAttribute('y2', yRim1);
+            svg.querySelector('#extV3').setAttribute('x2', rightEdge + 50); svg.querySelector('#extV3').setAttribute('y2', yRim1);
 
             svg.querySelector('#extV4').setAttribute('x1', xRim2); svg.querySelector('#extV4').setAttribute('y1', yRim2);
-            svg.querySelector('#extV4').setAttribute('x2', centerX + 240); svg.querySelector('#extV4').setAttribute('y2', yRim2);
+            svg.querySelector('#extV4').setAttribute('x2', rightEdge + 50); svg.querySelector('#extV4').setAttribute('y2', yRim2);
 
-            svg.querySelector('#extV5').setAttribute('x1', centerX + wBerm_half); svg.querySelector('#extV5').setAttribute('y1', yBermTop);
-            svg.querySelector('#extV5').setAttribute('x2', centerX + 280); svg.querySelector('#extV5').setAttribute('y2', yBermTop);
-
-            svg.querySelector('#extV6').setAttribute('x1', centerX + wBerm_half); svg.querySelector('#extV6').setAttribute('y1', yBermBottom);
-            svg.querySelector('#extV6').setAttribute('x2', centerX + 280); svg.querySelector('#extV6').setAttribute('y2', yBermBottom);
-
-            svg.querySelector('#extV7').setAttribute('x1', centerX + wTrench_half); svg.querySelector('#extV7').setAttribute('y1', yTrenchTop);
-            svg.querySelector('#extV7').setAttribute('x2', centerX + 320); svg.querySelector('#extV7').setAttribute('y2', yTrenchTop);
-
-            svg.querySelector('#extV8').setAttribute('x1', centerX + wTrench_half); svg.querySelector('#extV8').setAttribute('y1', yTrenchBottom);
-            svg.querySelector('#extV8').setAttribute('x2', centerX + 320); svg.querySelector('#extV8').setAttribute('y2', yTrenchBottom);
-
-            svg.querySelector('#dimV1').setAttribute('x1', centerX + 180); svg.querySelector('#dimV1').setAttribute('y1', yA1);
-            svg.querySelector('#dimV1').setAttribute('x2', centerX + 180); svg.querySelector('#dimV1').setAttribute('y2', yA2);
-            svg.querySelector('#svgDimLengthA').setAttribute('x', centerX + 175);
+            svg.querySelector('#dimV1').setAttribute('x1', rightEdge + 20); svg.querySelector('#dimV1').setAttribute('y1', yA1);
+            svg.querySelector('#dimV1').setAttribute('x2', rightEdge + 20); svg.querySelector('#dimV1').setAttribute('y2', yA2);
+            svg.querySelector('#svgDimLengthA').setAttribute('x', rightEdge + 12);
             svg.querySelector('#svgDimLengthA').setAttribute('y', centerY);
-            svg.querySelector('#svgDimLengthA').setAttribute('transform', `rotate(-90 ${centerX + 175} ${centerY})`);
+            svg.querySelector('#svgDimLengthA').setAttribute('transform', `rotate(-90 ${rightEdge + 12} ${centerY})`);
             svg.querySelector('#svgDimLengthA').textContent = `${length.toFixed(2)} m`;
 
-            svg.querySelector('#dimV2').setAttribute('x1', centerX + 220); svg.querySelector('#dimV2').setAttribute('y1', yRim1);
-            svg.querySelector('#dimV2').setAttribute('x2', centerX + 220); svg.querySelector('#dimV2').setAttribute('y2', yRim2);
-            svg.querySelector('#svgDimLengthTop').setAttribute('x', centerX + 215);
+            svg.querySelector('#dimV2').setAttribute('x1', rightEdge + 45); svg.querySelector('#dimV2').setAttribute('y1', yRim1);
+            svg.querySelector('#dimV2').setAttribute('x2', rightEdge + 45); svg.querySelector('#dimV2').setAttribute('y2', yRim2);
+            svg.querySelector('#svgDimLengthTop').setAttribute('x', rightEdge + 37);
             svg.querySelector('#svgDimLengthTop').setAttribute('y', centerY);
-            svg.querySelector('#svgDimLengthTop').setAttribute('transform', `rotate(-90 ${centerX + 215} ${centerY})`);
+            svg.querySelector('#svgDimLengthTop').setAttribute('transform', `rotate(-90 ${rightEdge + 37} ${centerY})`);
             svg.querySelector('#svgDimLengthTop').textContent = `${topLength.toFixed(2)} m`;
 
-            svg.querySelector('#dimV3').setAttribute('x1', centerX + 260); svg.querySelector('#dimV3').setAttribute('y1', yBermTop);
-            svg.querySelector('#dimV3').setAttribute('x2', centerX + 260); svg.querySelector('#dimV3').setAttribute('y2', yBermBottom);
-            svg.querySelector('#svgDimLengthBerm').setAttribute('x', centerX + 255);
-            svg.querySelector('#svgDimLengthBerm').setAttribute('y', centerY);
-            svg.querySelector('#svgDimLengthBerm').setAttribute('transform', `rotate(-90 ${centerX + 255} ${centerY})`);
-            svg.querySelector('#svgDimLengthBerm').textContent = `${(topLength + 2 * bermWidth).toFixed(2)} m`;
-
-            svg.querySelector('#dimV4').setAttribute('x1', centerX + 300); svg.querySelector('#dimV4').setAttribute('y1', yTrenchTop);
-            svg.querySelector('#dimV4').setAttribute('x2', centerX + 300); svg.querySelector('#dimV4').setAttribute('y2', yTrenchBottom);
-            svg.querySelector('#svgDimLengthTotal').setAttribute('x', centerX + 295);
-            svg.querySelector('#svgDimLengthTotal').setAttribute('y', centerY);
-            svg.querySelector('#svgDimLengthTotal').setAttribute('transform', `rotate(-90 ${centerX + 295} ${centerY})`);
-            svg.querySelector('#svgDimLengthTotal').textContent = `${(topLength + 2 * bermWidth + 2 * trenchWidth).toFixed(2)} m`;
+            // Hide Berm and Total Dimension Lines dynamically as requested (display: none)
+            if (svg.querySelector('#dimV3')) svg.querySelector('#dimV3').setAttribute('display', 'none');
+            if (svg.querySelector('#svgDimLengthBerm')) svg.querySelector('#svgDimLengthBerm').setAttribute('display', 'none');
+            if (svg.querySelector('#dimV4')) svg.querySelector('#dimV4').setAttribute('display', 'none');
+            if (svg.querySelector('#svgDimLengthTotal')) svg.querySelector('#svgDimLengthTotal').setAttribute('display', 'none');
+            if (svg.querySelector('#extV5')) svg.querySelector('#extV5').setAttribute('display', 'none');
+            if (svg.querySelector('#extV6')) svg.querySelector('#extV6').setAttribute('display', 'none');
+            if (svg.querySelector('#extV7')) svg.querySelector('#extV7').setAttribute('display', 'none');
+            if (svg.querySelector('#extV8')) svg.querySelector('#extV8').setAttribute('display', 'none');
         }
 
         function formatDate(dateStr) {
