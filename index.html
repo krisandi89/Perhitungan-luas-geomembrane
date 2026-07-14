@@ -454,7 +454,7 @@
         <!-- Drawings Section: Full width denah kolam -->
         <div style="border: 1px solid #bbb; padding: 10px 10px 5px 10px; border-radius: 6px; text-align: center; background: white; margin-bottom: 6px;">
             <h5 style="margin: 0 0 3px 0; font-size: 10px; text-align: left; color: #111; font-weight: bold;">DENAH KOLAM (TAMPAK ATAS)</h5>
-            <svg id="printSchematic" viewBox="0 0 550 660" preserveAspectRatio="xMidYMid meet" style="width: 100%; height: 340px; background: white;"></svg>
+            <svg id="printSchematic" viewBox="0 0 700 550" preserveAspectRatio="xMidYMid meet" style="width: 100%; height: 340px; background: white;"></svg>
         </div>
 
         <!-- Potongan + Detail side by side -->
@@ -701,10 +701,43 @@
             const lTrench_half = (totalL / 2) * scale;
 
             // Update Screen SVG attributes
-            updateSvgElements('schematic', centerX, centerY, scale, baseWidth, baseLength, topWidth, topLength, bermWidth, trenchWidth, trenchDepth, wTrench_half, lTrench_half, wBerm_half, lBerm_half, wA_half, lA_half);
+            updateSvgElements('schematic', centerX, centerY, scale, baseWidth, baseLength, topWidth, topLength, bermWidth, trenchWidth, trenchDepth, wTrench_half, lTrench_half, wBerm_half, lBerm_half, wA_half, lA_half, false);
             
-            // Sync print SVG content
+            // Sync print SVG content first
             document.getElementById('printSchematic').innerHTML = document.getElementById('schematic').innerHTML;
+
+            // Update Print SVG in Landscape Orientation (swapped width/length values to rotate)
+            const scalePrint = (totalL > 0 && totalW > 0) ? Math.min(380 / totalL, 300 / totalW) : 0;
+            const wA_half_print = (baseWidth / 2) * scalePrint;
+            const wTop_half_print = (topWidth / 2) * scalePrint;
+            const wBerm_half_print = ((topWidth + 2 * bermWidth) / 2) * scalePrint;
+            const wTrench_half_print = (totalW / 2) * scalePrint;
+
+            const lA_half_print = (baseLength / 2) * scalePrint;
+            const lTop_half_print = (topLength / 2) * scalePrint;
+            const lBerm_half_print = ((topLength + 2 * bermWidth) / 2) * scalePrint;
+            const lTrench_half_print = (totalL / 2) * scalePrint;
+
+            updateSvgElements(
+                'printSchematic',
+                280, // centerX_print
+                210, // centerY_print
+                scalePrint,
+                baseLength, // Swapped: length becomes width
+                baseWidth,  // Swapped: width becomes length
+                topLength,  // Swapped: topLength becomes topWidth
+                topWidth,   // Swapped: topWidth becomes topLength
+                bermWidth,
+                trenchWidth,
+                trenchDepth,
+                lTrench_half_print, // Swapped
+                wTrench_half_print, // Swapped
+                lBerm_half_print,   // Swapped
+                wBerm_half_print,   // Swapped
+                lA_half_print,      // Swapped
+                wA_half_print,      // Swapped
+                true // isLandscape = true
+            );
 
             // Update Screen Results text
             document.getElementById('resAreaA').innerText = isNaN(areaA) ? '0.00' : areaA.toFixed(2);
@@ -750,7 +783,7 @@
         }
 
         // Shared helper function to update SVG geometry and texture seams
-        function updateSvgElements(svgId, centerX, centerY, scale, width, length, topWidth, topLength, bermWidth, trenchWidth, trenchDepth, wTrench_half, lTrench_half, wBerm_half, lBerm_half, wA_half, lA_half) {
+        function updateSvgElements(svgId, centerX, centerY, scale, width, length, topWidth, topLength, bermWidth, trenchWidth, trenchDepth, wTrench_half, lTrench_half, wBerm_half, lBerm_half, wA_half, lA_half, isLandscape = false) {
             const svg = document.getElementById(svgId);
             if (!svg) return;
 
@@ -825,6 +858,25 @@
             if (svg.querySelector('#polyCShade')) svg.querySelector('#polyCShade').setAttribute('points', ptsC);
             if (svg.querySelector('#polyEShade')) svg.querySelector('#polyEShade').setAttribute('points', ptsE);
 
+            // Swap text labels for landscape orientation to maintain correct region letter bindings
+            const labelB = svg.querySelector('#textB');
+            const labelD = svg.querySelector('#textD');
+            const labelC = svg.querySelector('#textC');
+            const labelE = svg.querySelector('#textE');
+            if (labelB && labelD && labelC && labelE) {
+                if (isLandscape) {
+                    labelB.textContent = 'C';
+                    labelD.textContent = 'E';
+                    labelC.textContent = 'B';
+                    labelE.textContent = 'D';
+                } else {
+                    labelB.textContent = 'B';
+                    labelD.textContent = 'D';
+                    labelC.textContent = 'C';
+                    labelE.textContent = 'E';
+                }
+            }
+
             svg.querySelector('#textA').setAttribute('x', centerX);
             svg.querySelector('#textA').setAttribute('y', centerY);
 
@@ -848,85 +900,85 @@
             svg.querySelector('#textG').setAttribute('x', centerX);
             svg.querySelector('#textG').setAttribute('y', Math.max(0, yTrenchTop + (yBermTop - yTrenchTop)/2));
 
-            // Dimension lines and extensions horizontal
+            // Dimension lines and extensions horizontal (using dynamic centerY offsets)
             svg.querySelector('#extH1').setAttribute('x1', xA1); svg.querySelector('#extH1').setAttribute('y1', yA2);
-            svg.querySelector('#extH1').setAttribute('x2', xA1); svg.querySelector('#extH1').setAttribute('y2', 600);
+            svg.querySelector('#extH1').setAttribute('x2', xA1); svg.querySelector('#extH1').setAttribute('y2', centerY + 300);
 
             svg.querySelector('#extH2').setAttribute('x1', xA2); svg.querySelector('#extH2').setAttribute('y1', yA2);
-            svg.querySelector('#extH2').setAttribute('x2', xA2); svg.querySelector('#extH2').setAttribute('y2', 600);
+            svg.querySelector('#extH2').setAttribute('x2', xA2); svg.querySelector('#extH2').setAttribute('y2', centerY + 300);
 
             svg.querySelector('#extH3').setAttribute('x1', xRim1); svg.querySelector('#extH3').setAttribute('y1', yRim2);
-            svg.querySelector('#extH3').setAttribute('x2', xRim1); svg.querySelector('#extH3').setAttribute('y2', 640);
+            svg.querySelector('#extH3').setAttribute('x2', xRim1); svg.querySelector('#extH3').setAttribute('y2', centerY + 340);
 
             svg.querySelector('#extH4').setAttribute('x1', xRim2); svg.querySelector('#extH4').setAttribute('y1', yRim2);
-            svg.querySelector('#extH4').setAttribute('x2', xRim2); svg.querySelector('#extH4').setAttribute('y2', 640);
+            svg.querySelector('#extH4').setAttribute('x2', xRim2); svg.querySelector('#extH4').setAttribute('y2', centerY + 340);
 
-            svg.querySelector('#dimH1').setAttribute('x1', xA1); svg.querySelector('#dimH1').setAttribute('y1', 580);
-            svg.querySelector('#dimH1').setAttribute('x2', xA2); svg.querySelector('#dimH1').setAttribute('y2', 580);
+            svg.querySelector('#dimH1').setAttribute('x1', xA1); svg.querySelector('#dimH1').setAttribute('y1', centerY + 280);
+            svg.querySelector('#dimH1').setAttribute('x2', xA2); svg.querySelector('#dimH1').setAttribute('y2', centerY + 280);
             svg.querySelector('#svgDimWidthA').setAttribute('x', centerX);
-            svg.querySelector('#svgDimWidthA').setAttribute('y', 570);
+            svg.querySelector('#svgDimWidthA').setAttribute('y', centerY + 270);
             svg.querySelector('#svgDimWidthA').textContent = `${width.toFixed(2)} m`;
 
-            svg.querySelector('#dimH2').setAttribute('x1', xRim1); svg.querySelector('#dimH2').setAttribute('y1', 620);
-            svg.querySelector('#dimH2').setAttribute('x2', xRim2); svg.querySelector('#dimH2').setAttribute('y2', 620);
+            svg.querySelector('#dimH2').setAttribute('x1', xRim1); svg.querySelector('#dimH2').setAttribute('y1', centerY + 320);
+            svg.querySelector('#dimH2').setAttribute('x2', xRim2); svg.querySelector('#dimH2').setAttribute('y2', centerY + 320);
             svg.querySelector('#svgDimWidthTop').setAttribute('x', centerX);
-            svg.querySelector('#svgDimWidthTop').setAttribute('y', 610);
+            svg.querySelector('#svgDimWidthTop').setAttribute('y', centerY + 310);
             svg.querySelector('#svgDimWidthTop').textContent = `${topWidth.toFixed(2)} m`;
 
-            // Dimension lines and extensions vertical
+            // Dimension lines and extensions vertical (using dynamic centerX offsets)
             const yBermBottom = centerY + lBerm_half;
             const yTrenchBottom = centerY + lTrench_half;
 
             svg.querySelector('#extV1').setAttribute('x1', xA2); svg.querySelector('#extV1').setAttribute('y1', yA1);
-            svg.querySelector('#extV1').setAttribute('x2', 400); svg.querySelector('#extV1').setAttribute('y2', yA1);
+            svg.querySelector('#extV1').setAttribute('x2', centerX + 200); svg.querySelector('#extV1').setAttribute('y2', yA1);
 
             svg.querySelector('#extV2').setAttribute('x1', xA2); svg.querySelector('#extV2').setAttribute('y1', yA2);
-            svg.querySelector('#extV2').setAttribute('x2', 400); svg.querySelector('#extV2').setAttribute('y2', yA2);
+            svg.querySelector('#extV2').setAttribute('x2', centerX + 200); svg.querySelector('#extV2').setAttribute('y2', yA2);
 
             svg.querySelector('#extV3').setAttribute('x1', xRim2); svg.querySelector('#extV3').setAttribute('y1', yRim1);
-            svg.querySelector('#extV3').setAttribute('x2', 440); svg.querySelector('#extV3').setAttribute('y2', yRim1);
+            svg.querySelector('#extV3').setAttribute('x2', centerX + 240); svg.querySelector('#extV3').setAttribute('y2', yRim1);
 
             svg.querySelector('#extV4').setAttribute('x1', xRim2); svg.querySelector('#extV4').setAttribute('y1', yRim2);
-            svg.querySelector('#extV4').setAttribute('x2', 440); svg.querySelector('#extV4').setAttribute('y2', yRim2);
+            svg.querySelector('#extV4').setAttribute('x2', centerX + 240); svg.querySelector('#extV4').setAttribute('y2', yRim2);
 
             svg.querySelector('#extV5').setAttribute('x1', centerX + wBerm_half); svg.querySelector('#extV5').setAttribute('y1', yBermTop);
-            svg.querySelector('#extV5').setAttribute('x2', 480); svg.querySelector('#extV5').setAttribute('y2', yBermTop);
+            svg.querySelector('#extV5').setAttribute('x2', centerX + 280); svg.querySelector('#extV5').setAttribute('y2', yBermTop);
 
             svg.querySelector('#extV6').setAttribute('x1', centerX + wBerm_half); svg.querySelector('#extV6').setAttribute('y1', yBermBottom);
-            svg.querySelector('#extV6').setAttribute('x2', 480); svg.querySelector('#extV6').setAttribute('y2', yBermBottom);
+            svg.querySelector('#extV6').setAttribute('x2', centerX + 280); svg.querySelector('#extV6').setAttribute('y2', yBermBottom);
 
             svg.querySelector('#extV7').setAttribute('x1', centerX + wTrench_half); svg.querySelector('#extV7').setAttribute('y1', yTrenchTop);
-            svg.querySelector('#extV7').setAttribute('x2', 520); svg.querySelector('#extV7').setAttribute('y2', yTrenchTop);
+            svg.querySelector('#extV7').setAttribute('x2', centerX + 320); svg.querySelector('#extV7').setAttribute('y2', yTrenchTop);
 
             svg.querySelector('#extV8').setAttribute('x1', centerX + wTrench_half); svg.querySelector('#extV8').setAttribute('y1', yTrenchBottom);
-            svg.querySelector('#extV8').setAttribute('x2', 520); svg.querySelector('#extV8').setAttribute('y2', yTrenchBottom);
+            svg.querySelector('#extV8').setAttribute('x2', centerX + 320); svg.querySelector('#extV8').setAttribute('y2', yTrenchBottom);
 
-            svg.querySelector('#dimV1').setAttribute('x1', 380); svg.querySelector('#dimV1').setAttribute('y1', yA1);
-            svg.querySelector('#dimV1').setAttribute('x2', 380); svg.querySelector('#dimV1').setAttribute('y2', yA2);
-            svg.querySelector('#svgDimLengthA').setAttribute('x', 375);
+            svg.querySelector('#dimV1').setAttribute('x1', centerX + 180); svg.querySelector('#dimV1').setAttribute('y1', yA1);
+            svg.querySelector('#dimV1').setAttribute('x2', centerX + 180); svg.querySelector('#dimV1').setAttribute('y2', yA2);
+            svg.querySelector('#svgDimLengthA').setAttribute('x', centerX + 175);
             svg.querySelector('#svgDimLengthA').setAttribute('y', centerY);
-            svg.querySelector('#svgDimLengthA').setAttribute('transform', `rotate(-90 375 ${centerY})`);
+            svg.querySelector('#svgDimLengthA').setAttribute('transform', `rotate(-90 ${centerX + 175} ${centerY})`);
             svg.querySelector('#svgDimLengthA').textContent = `${length.toFixed(2)} m`;
 
-            svg.querySelector('#dimV2').setAttribute('x1', 420); svg.querySelector('#dimV2').setAttribute('y1', yRim1);
-            svg.querySelector('#dimV2').setAttribute('x2', 420); svg.querySelector('#dimV2').setAttribute('y2', yRim2);
-            svg.querySelector('#svgDimLengthTop').setAttribute('x', 415);
+            svg.querySelector('#dimV2').setAttribute('x1', centerX + 220); svg.querySelector('#dimV2').setAttribute('y1', yRim1);
+            svg.querySelector('#dimV2').setAttribute('x2', centerX + 220); svg.querySelector('#dimV2').setAttribute('y2', yRim2);
+            svg.querySelector('#svgDimLengthTop').setAttribute('x', centerX + 215);
             svg.querySelector('#svgDimLengthTop').setAttribute('y', centerY);
-            svg.querySelector('#svgDimLengthTop').setAttribute('transform', `rotate(-90 415 ${centerY})`);
+            svg.querySelector('#svgDimLengthTop').setAttribute('transform', `rotate(-90 ${centerX + 215} ${centerY})`);
             svg.querySelector('#svgDimLengthTop').textContent = `${topLength.toFixed(2)} m`;
 
-            svg.querySelector('#dimV3').setAttribute('x1', 460); svg.querySelector('#dimV3').setAttribute('y1', yBermTop);
-            svg.querySelector('#dimV3').setAttribute('x2', 460); svg.querySelector('#dimV3').setAttribute('y2', yBermBottom);
-            svg.querySelector('#svgDimLengthBerm').setAttribute('x', 455);
+            svg.querySelector('#dimV3').setAttribute('x1', centerX + 260); svg.querySelector('#dimV3').setAttribute('y1', yBermTop);
+            svg.querySelector('#dimV3').setAttribute('x2', centerX + 260); svg.querySelector('#dimV3').setAttribute('y2', yBermBottom);
+            svg.querySelector('#svgDimLengthBerm').setAttribute('x', centerX + 255);
             svg.querySelector('#svgDimLengthBerm').setAttribute('y', centerY);
-            svg.querySelector('#svgDimLengthBerm').setAttribute('transform', `rotate(-90 455 ${centerY})`);
+            svg.querySelector('#svgDimLengthBerm').setAttribute('transform', `rotate(-90 ${centerX + 255} ${centerY})`);
             svg.querySelector('#svgDimLengthBerm').textContent = `${(topLength + 2 * bermWidth).toFixed(2)} m`;
 
-            svg.querySelector('#dimV4').setAttribute('x1', 500); svg.querySelector('#dimV4').setAttribute('y1', yTrenchTop);
-            svg.querySelector('#dimV4').setAttribute('x2', 500); svg.querySelector('#dimV4').setAttribute('y2', yTrenchBottom);
-            svg.querySelector('#svgDimLengthTotal').setAttribute('x', 495);
+            svg.querySelector('#dimV4').setAttribute('x1', centerX + 300); svg.querySelector('#dimV4').setAttribute('y1', yTrenchTop);
+            svg.querySelector('#dimV4').setAttribute('x2', centerX + 300); svg.querySelector('#dimV4').setAttribute('y2', yTrenchBottom);
+            svg.querySelector('#svgDimLengthTotal').setAttribute('x', centerX + 295);
             svg.querySelector('#svgDimLengthTotal').setAttribute('y', centerY);
-            svg.querySelector('#svgDimLengthTotal').setAttribute('transform', `rotate(-90 495 ${centerY})`);
+            svg.querySelector('#svgDimLengthTotal').setAttribute('transform', `rotate(-90 ${centerX + 295} ${centerY})`);
             svg.querySelector('#svgDimLengthTotal').textContent = `${(topLength + 2 * bermWidth + 2 * trenchWidth).toFixed(2)} m`;
         }
 
