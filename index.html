@@ -354,11 +354,11 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label" id="labelLength">Panjang Atas (m)</label>
+                            <label class="form-label" id="labelLength">Panjang Atas (p2) (m)</label>
                             <input type="number" id="length" class="form-input" placeholder="10" value="" oninput="calculate()">
                         </div>
                         <div class="form-group">
-                            <label class="form-label" id="labelWidth">Lebar Atas (m)</label>
+                            <label class="form-label" id="labelWidth">Lebar Atas (l2) (m)</label>
                             <input type="number" id="width" class="form-input" placeholder="15" value="" oninput="calculate()">
                         </div>
                         <div class="form-group">
@@ -594,11 +594,11 @@
         function toggleDimMode() {
             const mode = document.getElementById('dimMode').value;
             if (mode === 'top') {
-                document.getElementById('labelLength').innerText = 'Panjang Atas (m)';
-                document.getElementById('labelWidth').innerText = 'Lebar Atas (m)';
+                document.getElementById('labelLength').innerText = 'Panjang Atas (p2) (m)';
+                document.getElementById('labelWidth').innerText = 'Lebar Atas (l2) (m)';
             } else {
-                document.getElementById('labelLength').innerText = 'Panjang Dasar (m)';
-                document.getElementById('labelWidth').innerText = 'Lebar Dasar (m)';
+                document.getElementById('labelLength').innerText = 'Panjang Dasar (p1) (m)';
+                document.getElementById('labelWidth').innerText = 'Lebar Dasar (l1) (m)';
             }
         }
 
@@ -924,13 +924,13 @@
             svg.querySelector('#dimH1').setAttribute('x2', xA2); svg.querySelector('#dimH1').setAttribute('y2', bottomEdge + 20);
             svg.querySelector('#svgDimWidthA').setAttribute('x', centerX);
             svg.querySelector('#svgDimWidthA').setAttribute('y', bottomEdge + 12);
-            svg.querySelector('#svgDimWidthA').textContent = `${width.toFixed(2)} m`;
+            svg.querySelector('#svgDimWidthA').textContent = isLandscape ? `p1: ${width.toFixed(2)} m` : `l1: ${width.toFixed(2)} m`;
 
             svg.querySelector('#dimH2').setAttribute('x1', xRim1); svg.querySelector('#dimH2').setAttribute('y1', bottomEdge + 45);
             svg.querySelector('#dimH2').setAttribute('x2', xRim2); svg.querySelector('#dimH2').setAttribute('y2', bottomEdge + 45);
             svg.querySelector('#svgDimWidthTop').setAttribute('x', centerX);
             svg.querySelector('#svgDimWidthTop').setAttribute('y', bottomEdge + 37);
-            svg.querySelector('#svgDimWidthTop').textContent = `${topWidth.toFixed(2)} m`;
+            svg.querySelector('#svgDimWidthTop').textContent = isLandscape ? `p2: ${topWidth.toFixed(2)} m` : `l2: ${topWidth.toFixed(2)} m`;
 
             // Dimension lines and extensions vertical (using dynamic rightEdge relative offsets)
             const rightEdge = centerX + wTrench_half;
@@ -952,14 +952,14 @@
             svg.querySelector('#svgDimLengthA').setAttribute('x', rightEdge + 12);
             svg.querySelector('#svgDimLengthA').setAttribute('y', centerY);
             svg.querySelector('#svgDimLengthA').setAttribute('transform', `rotate(-90 ${rightEdge + 12} ${centerY})`);
-            svg.querySelector('#svgDimLengthA').textContent = `${length.toFixed(2)} m`;
+            svg.querySelector('#svgDimLengthA').textContent = isLandscape ? `l1: ${length.toFixed(2)} m` : `p1: ${length.toFixed(2)} m`;
 
             svg.querySelector('#dimV2').setAttribute('x1', rightEdge + 45); svg.querySelector('#dimV2').setAttribute('y1', yRim1);
             svg.querySelector('#dimV2').setAttribute('x2', rightEdge + 45); svg.querySelector('#dimV2').setAttribute('y2', yRim2);
             svg.querySelector('#svgDimLengthTop').setAttribute('x', rightEdge + 37);
             svg.querySelector('#svgDimLengthTop').setAttribute('y', centerY);
             svg.querySelector('#svgDimLengthTop').setAttribute('transform', `rotate(-90 ${rightEdge + 37} ${centerY})`);
-            svg.querySelector('#svgDimLengthTop').textContent = `${topLength.toFixed(2)} m`;
+            svg.querySelector('#svgDimLengthTop').textContent = isLandscape ? `l2: ${topLength.toFixed(2)} m` : `p2: ${topLength.toFixed(2)} m`;
 
             // Hide Berm and Total Dimension Lines dynamically as requested (display: none)
             if (svg.querySelector('#dimV3')) svg.querySelector('#dimV3').setAttribute('display', 'none');
