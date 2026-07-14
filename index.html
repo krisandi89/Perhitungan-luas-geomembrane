@@ -317,27 +317,27 @@
                     <div class="grid grid-cols-2">
                         <div class="form-group">
                             <label class="form-label">Nama Proyek</label>
-                            <input type="text" id="projectName" class="form-input" value="">
+                            <input type="text" id="projectName" class="form-input" value="" oninput="calculate()">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Lokasi</label>
-                            <input type="text" id="location" class="form-input" value="">
+                            <input type="text" id="location" class="form-input" value="" oninput="calculate()">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Client</label>
-                            <input type="text" id="client" class="form-input" value="">
+                            <input type="text" id="client" class="form-input" value="" oninput="calculate()">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Marketing</label>
-                            <input type="text" id="marketing" class="form-input" value="">
+                            <input type="text" id="marketing" class="form-input" value="" oninput="calculate()">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Designer</label>
-                            <input type="text" id="designer" class="form-input" value="">
+                            <input type="text" id="designer" class="form-input" value="" oninput="calculate()">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Tanggal</label>
-                            <input type="date" id="date" class="form-input">
+                            <input type="date" id="date" class="form-input" onchange="calculate()">
                         </div>
                     </div>
                 </div>
@@ -757,6 +757,11 @@
             document.getElementById('resTotalArea').innerText = isNaN(totalArea) ? '0.00' : totalArea.toFixed(2);
             document.getElementById('resTotalAreaWaste').innerText = isNaN(totalAreaWithWaste) ? '0.00' : totalAreaWithWaste.toFixed(2);
             document.getElementById('resTotalQuantity').innerText = isNaN(totalQuantity) ? '0.00' : totalQuantity.toFixed(2);
+
+            // Update document title for PDF print filename
+            const pName = document.getElementById('projectName').value.trim() || 'Template';
+            const cName = document.getElementById('client').value.trim() || 'Client';
+            document.title = `Perhitungan kuantiti Geomembrane ${pName} ${cName}`;
 
             // Update Printable Report values
             document.getElementById('printProjName').innerText = document.getElementById('projectName').value;
